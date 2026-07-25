@@ -1,0 +1,150 @@
+<!-- 设置页片段：7 字段配置表单 -->
+<div x-data="settingsPage()">
+    <div class="chart-container">
+        <h3 style="margin-bottom: 8px;">个人配置</h3>
+        <p style="color: #666; margin-bottom: 16px; font-size: 13px;">
+            这些参数用于心率区间和训练负荷计算，请根据实测值填写（如乳酸阈值心率需实验室测试）。
+            未设置的字段将使用默认值。
+        </p>
+
+        <form @submit.prevent="save">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label>最大心率（bpm）</label>
+                    <input type="number" x-model.number="config.max_hr" min="80" max="260"
+                           placeholder="默认 {{ defaults.max_hr }}">
+                </div>
+                <div class="form-group">
+                    <label>乳酸阈值心率（bpm）</label>
+                    <input type="number" x-model.number="config.lthr" min="60" max="220"
+                           placeholder="默认 {{ defaults.lthr }}">
+                </div>
+                <div class="form-group">
+                    <label>静息心率（bpm）</label>
+                    <input type="number" x-model.number="config.resting_hr" min="30" max="150"
+                           placeholder="默认 {{ defaults.resting_hr }}">
+                </div>
+                <div class="form-group">
+                    <label>年龄</label>
+                    <input type="number" x-model.number="config.age" min="10" max="120"
+                           placeholder="默认 {{ defaults.age }}">
+                </div>
+                <div class="form-group">
+                    <label>体重（kg）</label>
+                    <input type="number" step="0.1" x-model.number="config.weight_kg" min="0" max="300"
+                           placeholder="默认 {{ defaults.weight_kg }}">
+                </div>
+                <div class="form-group">
+                    <label>身高（cm）</label>
+                    <input type="number" step="0.1" x-model.number="config.height_cm" min="0" max="300"
+                           placeholder="默认 {{ defaults.height_cm }}">
+                </div>
+                <div class="form-group">
+                    <label>性别</label>
+                    <select x-model="config.gender">
+                        <option value="">未设置</option>
+                        <option value="male">男</option>
+                        <option value="female">女</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <button type="button" class="btn btn-secondary" @click="reset">重置为默认值</button>
+            </div>
+        </form>
+
+        <div x-show="message" style="margin-top: 16px;" :style="messageType === 'success' ? 'color: #34a853;' : 'color: #ea4335;'">
+            <span x-text="message"></span>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <h3 style="margin-bottom: 8px;">当前生效值</h3>
+        <p style="color: #666; margin-bottom: 12px; font-size: 13px;">
+            以下为计算器实际使用的值（data/config.json 覆盖 → constants.py 默认值）
+        </p>
+        <table>
+            <tr><th>参数</th><th>当前值</th><th>来源</th></tr>
+            <template x-for="(val, key) in effectiveValues" :key="key">
+                <tr>
+                    <td x-text="labelMap[key]"></td>
+                    <td x-text="val !== null ? val : '未设置'"></td>
+                    <td x-text="config[key] !== null && config[key] !== undefined ? 'config.json' : '默认值'"></td>
+                </tr>
+            </template>
+        </table>
+    </div>
+</div>
+
+<script>
+function settingsPage() {
+    var defaults = {{ defaults|tojson }};
+    var current = {{ current|tojson }};
+
+    return {
+        config: Object.assign({}, {max_hr: null, lthr: null, resting_hr: null, age: null,
+                                    weight_kg: null, height_cm: null, gender: ''}, current),
+        defaults: defaults,
+        message: '',
+        messageType: 'success',
+        labelMap: {max_hr: '最大心率', lthr: '乳酸阈值心率', resting_hr: '静息心率',
+                   age: '年龄', weight_kg: '体重', height_cm: '身高', gender: '性别'},
+
+        get effectiveValues() {
+            var result = {};
+            for (var key in this.defaults) {
+                result[key] = (this.config[key] !== null && this.config[key] !== undefined && this.config[key] !== '')
+                    ? this.config[key] : this.defaults[key];
+            }
+            result.gender = this.config.gender || '未设置';
+            return result;
+        },
+
+        async save() {
+            try {
+                var resp = await fetch('/api/config', {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(this.config),
+                });
+                if (resp.ok) {
+                    this.message = '✅ 配置已保存';
+                    this.messageType = 'success';
+                    showToast('配置已保存', 'success');
+                } else {
+                    var err = await resp.json();
+                    this.message = '❌ 保存失败：' + JSON.stringify(err.detail || err);
+                    this.messageType = 'error';
+                }
+            } catch (e) {
+                this.message = '❌ 保存失败：' + e.message;
+                this.messageType = 'error';
+            }
+        },
+
+        async reset() {
+            if (!confirm('确定重置所有字段为默认值？这将清空 config.json。')) return;
+            var resetData = {};
+            for (var key in this.defaults) resetData[key] = null;
+            resetData.gender = '';
+            try {
+                await fetch('/api/config', {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(resetData),
+                });
+                this.config = Object.assign({}, {max_hr: null, lthr: null, resting_hr: null, age: null,
+                                                  weight_kg: null, height_cm: null, gender: ''});
+                this.message = '✅ 已重置为默认值';
+                this.messageType = 'success';
+                showToast('已重置为默认值', 'success');
+            } catch (e) {
+                this.message = '❌ 重置失败：' + e.message;
+                this.messageType = 'error';
+            }
+        },
+    };
+}
+</script>
