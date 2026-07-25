@@ -1,0 +1,25 @@
+<!-- 活动详情片段：基本信息 + 指标 -->
+<div class="chart-container">
+    <h3 style="margin-bottom: 16px;">活动详情 — {{ session.session_id }}</h3>
+    <table>
+        <tr><th>字段</th><th>值</th></tr>
+        <tr><td>日期</td><td>{{ session.activity_date.strftime('%Y-%m-%d %H:%M') }}</td></tr>
+        <tr><td>距离</td><td>{{ (session.distance_m / 1000)|round(2) }} km</td></tr>
+        <tr><td>时长</td><td>{{ format_duration(session.duration_s) }}</td></tr>
+        <tr><td>平均配速</td><td>{{ format_pace(session.avg_pace_s_per_km) }}</td></tr>
+        <tr><td>平均心率</td><td>{{ session.avg_hr if session.avg_hr else '--' }} bpm</td></tr>
+        <tr><td>最大心率</td><td>{{ session.max_hr if session.max_hr else '--' }} bpm</td></tr>
+        <tr><td>步频</td><td>{{ session.cadence if session.cadence else '--' }} spm</td></tr>
+        <tr><td>累计爬升</td><td>{{ session.elevation_gain_m if session.elevation_gain_m else '--' }} m</td></tr>
+        <tr><td>来源</td><td>{{ session.source }}</td></tr>
+        {% if metrics %}
+        <tr><td>VDOT</td><td>{{ metrics.vdot|round(1) if metrics.vdot else '--' }}</td></tr>
+        <tr><td>TSS</td><td>{{ metrics.tss|round(1) }}</td></tr>
+        <tr><td>强度因子</td><td>{{ metrics.intensity_factor|round(3) }}</td></tr>
+        <tr><td>配速区间</td><td>{{ metrics.pace_zone }}</td></tr>
+        {% endif %}
+        {% if session.notes %}
+        <tr><td>备注</td><td>{{ session.notes }}</td></tr>
+        {% endif %}
+    </table>
+</div>

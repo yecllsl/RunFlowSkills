@@ -1,0 +1,85 @@
+<!-- 活动列表片段：筛选栏 + 表格 + 分页 -->
+<div>
+    <!-- 筛选栏 -->
+    <div class="chart-container" style="display: flex; gap: 12px; align-items: end;">
+        <div class="form-group" style="flex: 1;">
+            <label>开始日期</label>
+            <input type="date" name="date_from" value="{{ current_date_from }}"
+                   hx-get="/partials/activities" hx-target="#activity-list" hx-trigger="change"
+                   hx-include="[name='date_to'],[name='source']" hx-vals='{"page": 1}'>
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>结束日期</label>
+            <input type="date" name="date_to" value="{{ current_date_to }}"
+                   hx-get="/partials/activities" hx-target="#activity-list" hx-trigger="change"
+                   hx-include="[name='date_from'],[name='source']" hx-vals='{"page": 1}'>
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label>来源</label>
+            <select name="source" value="{{ current_source }}"
+                    hx-get="/partials/activities" hx-target="#activity-list" hx-trigger="change"
+                    hx-include="[name='date_from'],[name='date_to']" hx-vals='{"page": 1}'>
+                <option value="">全部</option>
+                <option value="garmin" {% if current_source == 'garmin' %}selected{% endif %}>Garmin</option>
+                <option value="coros" {% if current_source == 'coros' %}selected{% endif %}>COROS</option>
+                <option value="apple" {% if current_source == 'apple' %}selected{% endif %}>Apple</option>
+                <option value="manual" {% if current_source == 'manual' %}selected{% endif %}>手动</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 活动列表 -->
+    <div id="activity-list">
+        {% if sessions %}
+        <table>
+            <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>距离</th>
+                    <th>时长</th>
+                    <th>配速</th>
+                    <th>心率</th>
+                    <th>VDOT</th>
+                    <th>来源</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in sessions %}
+                <tr hx-get="/partials/activities/{{ s.session_id }}" hx-target="#activity-detail"
+                    hx-trigger="click">
+                    <td>{{ s.activity_date }}</td>
+                    <td>{{ s.distance_km }} km</td>
+                    <td>{{ s.duration }}</td>
+                    <td>{{ s.pace }}</td>
+                    <td>{{ s.avg_hr if s.avg_hr else '--' }}</td>
+                    <td>{{ s.vdot if s.vdot else '--' }}</td>
+                    <td>{{ s.source }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- 分页 -->
+        {% if total_pages > 1 %}
+        <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: center;">
+            {% for p in range(1, total_pages + 1) %}
+            <button class="btn {% if p == page %}btn-primary{% else %}btn-secondary{% endif %}"
+                    hx-get="/partials/activities?page={{ p }}"
+                    hx-target="#activity-list"
+                    hx-include="[name='date_from'],[name='date_to'],[name='source']">
+                {{ p }}
+            </button>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="empty-state">
+            <div>暂无活动记录</div>
+            <p style="margin-top: 8px;">点击导航栏「导入」上传训练文件</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 详情区（HTMX OOB） -->
+    <div id="activity-detail" style="margin-top: 24px;"></div>
+</div>
