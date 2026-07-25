@@ -12,9 +12,10 @@ from run_flow_skills_mcp.constants import PACE_ZONE_FACTORS
 
 PaceZone = Literal["E", "M", "T", "I", "R"]
 
-# VDOT 与参考配速的近似换算（VDOT 45 ≈ 4:36/km = 276s/km）
-# 公式：VDOT_pace = 4320 / VDOT（秒/km，经验近似）
-_VDOT_PACE_COEFF: float = 4320.0
+# VDOT 与参考配速的近似换算（VDOT 45 ≈ 4:36/km = 276s/km，即阈值配速）
+# 公式：VDOT_pace = COEFF / VDOT（秒/km，经验近似）
+# ponytail: 修正系数，原 4320 与注释 276*45=12420 不一致，导致 pace_zone 全部偏快
+_VDOT_PACE_COEFF: float = 12420.0
 
 
 def calc_vdot_pace_s_per_km(vdot: float) -> float:
