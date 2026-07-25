@@ -5,6 +5,13 @@
 """
 from __future__ import annotations
 
+from pathlib import Path
+
+# ============ 数据目录默认值（Plan 2 _deps.py 使用）============
+# 默认数据目录：run-flow-skills-mcp/data/（与 Plan 1 一致），由 Services 工厂初始化时创建
+# constants.py 位于 run-flow-skills-mcp/src/run_flow_skills_mcp/，向上 3 级到 run-flow-skills-mcp/
+DATA_DIR: Path = Path(__file__).resolve().parent.parent.parent / "data"
+
 # ============ 用户生理参数默认值（M-3 评审修正）============
 # DEFAULT — 用户可经 Web /settings 覆盖
 DEFAULT_MAX_HR: int = 190
