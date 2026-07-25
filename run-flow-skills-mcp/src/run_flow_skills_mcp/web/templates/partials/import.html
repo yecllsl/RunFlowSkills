@@ -1,0 +1,182 @@
+<!-- 导入页片段：拖拽区 + 文件列表 + 手动录入表单 -->
+<div x-data="importPage()">
+    <!-- 拖拽上传区 -->
+    <div class="chart-container">
+        <h3 style="margin-bottom: 16px;">批量导入训练文件</h3>
+        <p style="color: #666; margin-bottom: 16px;">
+            支持格式：{{ ' '.join(supported_ext) }} | 单文件上限 {{ max_size_mb }}MB | 批量上限 {{ max_batch }} 个
+        </p>
+
+        <div class="drop-zone"
+             @dragover.prevent="dragover = true"
+             @dragleave.prevent="dragover = false"
+             @drop.prevent="handleDrop"
+             :class="{ 'dragover': dragover }"
+             @click="$refs.fileInput.click()">
+            <div style="font-size: 48px; margin-bottom: 8px;">📁</div>
+            <div>拖拽文件到此处，或点击选择文件（支持多选）</div>
+        </div>
+        <input type="file" x-ref="fileInput" multiple
+               :accept="supported_ext.map(e => '.' + e).join(',')"
+               style="display: none;" @change="handleSelect">
+
+        <!-- 强制重新导入勾选框 -->
+        <label style="display: flex; align-items: center; gap: 8px; margin-top: 16px;">
+            <input type="checkbox" x-model="force">
+            <span>强制重新导入（覆盖重复文件）</span>
+        </label>
+
+        <!-- 导入按钮 -->
+        <button class="btn btn-primary" @click="uploadFiles" :disabled="pendingFiles.length === 0"
+                style="margin-top: 16px;">
+            导入 <span x-text="pendingFiles.length"></span> 个文件
+        </button>
+    </div>
+
+    <!-- 导入进度列表 -->
+    <div class="chart-container" x-show="results.length > 0" style="display: none;">
+        <h3 style="margin-bottom: 16px;">导入结果</h3>
+        <table>
+            <thead>
+                <tr><th>文件名</th><th>状态</th><th>详情</th></tr>
+            </thead>
+            <tbody>
+                <template x-for="r in results" :key="r.filename">
+                    <tr>
+                        <td x-text="r.filename"></td>
+                        <td>
+                            <span x-show="r.imported" style="color: #34a853;">✅ 已导入</span>
+                            <span x-show="r.skipped" style="color: #fbbc04;">⏭️ 跳过</span>
+                            <span x-show="!r.imported && !r.skipped" style="color: #ea4335;">❌ 失败</span>
+                        </td>
+                        <td x-text="r.session_id || r.reason || r.error || ''"></td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+        <p style="margin-top: 12px; color: #666;">
+            共 <span x-text="results.length"></span> 个文件，
+            成功 <span x-text="results.filter(r => r.imported).length" style="color: #34a853;"></span>，
+            跳过 <span x-text="results.filter(r => r.skipped).length" style="color: #fbbc04;"></span>，
+            失败 <span x-text="results.filter(r => !r.imported && !r.skipped).length" style="color: #ea4335;"></span>
+        </p>
+    </div>
+
+    <!-- 手动录入表单 -->
+    <div class="chart-container">
+        <h3 style="margin-bottom: 16px;">手动录入（备用方案）</h3>
+        <form @submit.prevent="submitManual">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label>活动日期 *</label>
+                    <input type="datetime-local" x-model="manual.activity_date" required>
+                </div>
+                <div class="form-group">
+                    <label>来源</label>
+                    <select x-model="manual.source">
+                        <option value="manual">手动</option>
+                        <option value="garmin">Garmin</option>
+                        <option value="coros">COROS</option>
+                        <option value="apple">Apple</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>距离（米）*</label>
+                    <input type="number" x-model.number="manual.distance_m" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>时长（秒）*</label>
+                    <input type="number" x-model.number="manual.duration_s" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>平均心率</label>
+                    <input type="number" x-model.number="manual.avg_hr" min="30" max="260">
+                </div>
+                <div class="form-group">
+                    <label>最大心率</label>
+                    <input type="number" x-model.number="manual.max_hr" min="30" max="260">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>备注</label>
+                <input type="text" x-model="manual.notes">
+            </div>
+            <button type="submit" class="btn btn-primary">提交录入</button>
+        </form>
+        <div x-show="manualResult" style="margin-top: 12px;" :style="manualResult?.imported ? 'color: #34a853;' : 'color: #ea4335;'">
+            <span x-text="manualResult?.imported ? '✅ 录入成功：' + (manualResult?.session_id || '') : '❌ ' + (manualResult?.error || '录入失败')"></span>
+        </div>
+    </div>
+</div>
+
+<script>
+function importPage() {
+    return {
+        dragover: false,
+        force: false,
+        pendingFiles: [],
+        results: [],
+        manual: {
+            activity_date: '',
+            distance_m: null,
+            duration_s: null,
+            avg_hr: null,
+            max_hr: null,
+            source: 'manual',
+            notes: '',
+        },
+        manualResult: null,
+        supported_ext: Array.from(document.currentScript.dataset.supported_ext || '{{ supported_ext|tojson }}'),
+
+        handleDrop(e) {
+            this.dragover = false;
+            this.pendingFiles = Array.from(e.dataTransfer.files);
+        },
+
+        handleSelect(e) {
+            this.pendingFiles = Array.from(e.target.files);
+        },
+
+        async uploadFiles() {
+            if (this.pendingFiles.length === 0) return;
+            const formData = new FormData();
+            this.pendingFiles.forEach(f => formData.append('files', f));
+            formData.append('force', this.force);
+
+            try {
+                const resp = await fetch('/api/import/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const data = await resp.json();
+                this.results = data.results || [];
+                showToast(`导入完成：成功 ${data.imported}，跳过 ${data.skipped}，失败 ${data.failed}`,
+                          data.failed > 0 ? 'error' : 'success');
+                this.pendingFiles = [];
+            } catch (err) {
+                showToast('上传失败：' + err.message, 'error');
+            }
+        },
+
+        async submitManual() {
+            try {
+                const resp = await fetch('/api/import/manual', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.manual),
+                });
+                this.manualResult = await resp.json();
+                if (this.manualResult.imported) {
+                    showToast('录入成功', 'success');
+                    this.manual = { activity_date: '', distance_m: null, duration_s: null,
+                                   avg_hr: null, max_hr: null, source: 'manual', notes: '' };
+                } else {
+                    showToast('录入失败：' + (this.manualResult.error || ''), 'error');
+                }
+            } catch (err) {
+                showToast('录入失败：' + err.message, 'error');
+            }
+        },
+    };
+}
+</script>
