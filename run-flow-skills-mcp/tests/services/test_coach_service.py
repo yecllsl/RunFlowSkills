@@ -1,4 +1,5 @@
 """coach_service 测试（spec FR-COACH-01/02/03, 8.3）."""
+
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -34,7 +35,17 @@ def test_read_body_signals_returns_required_fields(service: CoachService):
     _seed_hrv(service, 7)
     result = service.read_body_signals(date="2026-07-25")
 
-    for key in ("hrv", "resting_hr", "sleep", "rpe", "baseline", "deviation_pct", "readiness_level", "yesterday_session", "recent_high_intensity"):
+    for key in (
+        "hrv",
+        "resting_hr",
+        "sleep",
+        "rpe",
+        "baseline",
+        "deviation_pct",
+        "readiness_level",
+        "yesterday_session",
+        "recent_high_intensity",
+    ):
         assert key in result
 
 
@@ -47,34 +58,26 @@ def test_read_body_signals_no_data_returns_none_values(service: CoachService):
 
 def test_readiness_level_green_when_all_normal(service: CoachService):
     """所有指标正常 → green（spec 8.3 第 3 条：综合 HRV+TSB+RPE）."""
-    level = service.compute_readiness_level(
-        hrv_deviation=2.0, tsb=15.0, rpe=4
-    )
+    level = service.compute_readiness_level(hrv_deviation=2.0, tsb=15.0, rpe=4)
     assert level == "green"
 
 
 def test_readiness_level_yellow_when_hrv_low(service: CoachService):
     """HRV 偏低 10-20% → yellow."""
-    level = service.compute_readiness_level(
-        hrv_deviation=-15.0, tsb=5.0, rpe=6
-    )
+    level = service.compute_readiness_level(hrv_deviation=-15.0, tsb=5.0, rpe=6)
     assert level == "yellow"
 
 
 def test_readiness_level_red_when_all_bad(service: CoachService):
     """HRV 偏低 + TSB 负 + RPE 高 → red."""
-    level = service.compute_readiness_level(
-        hrv_deviation=-20.0, tsb=-15.0, rpe=9
-    )
+    level = service.compute_readiness_level(hrv_deviation=-20.0, tsb=-15.0, rpe=9)
     assert level == "red"
 
 
 def test_readiness_level_single_indicator_not_decisive(service: CoachService):
     """单一指标不决策（coaching-rules.md 第 3 条）：仅 HRV 偏低不应直接 red."""
     # HRV 偏低但 TSB 充足 + RPE 低
-    level = service.compute_readiness_level(
-        hrv_deviation=-12.0, tsb=20.0, rpe=3
-    )
+    level = service.compute_readiness_level(hrv_deviation=-12.0, tsb=20.0, rpe=3)
     assert level in ("green", "yellow")  # 不应直接 red
 
 
@@ -120,12 +123,14 @@ def test_read_body_signals_detects_recent_high_intensity(
     _seed_hrv(service, 7)
     # 导入一个高强度训练（T 区间）
     yesterday = (datetime(2026, 7, 25) - timedelta(days=1)).strftime("%Y-%m-%dT18:00:00")
-    import_service.import_manual({
-        "activity_date": yesterday,
-        "distance_m": 8000.0,
-        "duration_s": 1800,  # 配速 3'45"/km，T 区间高强度
-        "source": "manual",
-    })
+    import_service.import_manual(
+        {
+            "activity_date": yesterday,
+            "distance_m": 8000.0,
+            "duration_s": 1800,  # 配速 3'45"/km，T 区间高强度
+            "source": "manual",
+        }
+    )
 
     result = service.read_body_signals(date="2026-07-25")
     # recent_high_intensity 应为 True 或包含昨日训练信息

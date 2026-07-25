@@ -2,10 +2,10 @@
 
 薄包装：调 StatsService.get_statistics → 附 prompt。
 """
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from run_flow_skills_mcp.tools._deps import get_services, reset_services_cache
 
@@ -25,9 +25,9 @@ _STATS_PROMPT = """已查询用户训练统计（按 {dimension} 分组）。
 
 def get_statistics(
     dimension: str,
-    date_from: Optional[str] = None,
-    date_to: Optional[str] = None,
-    _data_dir: Optional[Path] = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    _data_dir: Path | None = None,
 ) -> dict:
     """按维度分组统计.
 
@@ -49,11 +49,14 @@ def get_statistics(
     )
 
     groups = data.get("groups", [])
-    groups_detail = "\n".join(
-        f"- {g['key']}: {g['count']} 次, {g.get('total_distance_km', 0)} km, "
-        f"平均配速 {g.get('avg_pace_s_per_km', 0)} s/km, TSS {g.get('total_tss', 0)}"
-        for g in groups
-    ) or "（无数据）"
+    groups_detail = (
+        "\n".join(
+            f"- {g['key']}: {g['count']} 次, {g.get('total_distance_km', 0)} km, "
+            f"平均配速 {g.get('avg_pace_s_per_km', 0)} s/km, TSS {g.get('total_tss', 0)}"
+            for g in groups
+        )
+        or "（无数据）"
+    )
 
     prompt = _STATS_PROMPT.format(
         dimension=dimension,

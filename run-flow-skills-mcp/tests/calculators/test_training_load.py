@@ -1,4 +1,5 @@
 """训练负荷计算单元测试（spec 8.1.2, 8.1.3, 8.1.7）."""
+
 import pytest
 
 from run_flow_skills_mcp.calculators.training_load import (

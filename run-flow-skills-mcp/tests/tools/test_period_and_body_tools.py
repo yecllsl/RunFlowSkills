@@ -1,4 +1,5 @@
 """get_period_summary / read_body_signals tool 测试（spec FR-REVIEW-01/02, FR-COACH-01）."""
+
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -40,7 +41,16 @@ def test_get_period_summary_returns_prompt_and_data(tmp_path: Path):
     _deps.reset_services_cache()
     _seed_sessions(tmp_path, 7)
     result = get_period_summary(period="week", date_ref="2026-07-25", _data_dir=tmp_path)
-    for key in ("prompt", "total_distance", "total_tss", "avg_vdot", "load_change", "sessions_count", "vdot_trend", "hrv_trend"):
+    for key in (
+        "prompt",
+        "total_distance",
+        "total_tss",
+        "avg_vdot",
+        "load_change",
+        "sessions_count",
+        "vdot_trend",
+        "hrv_trend",
+    ):
         assert key in result
     # prompt 应已填充（不再是 {period}）
     assert "{period}" not in result["prompt"]
@@ -59,7 +69,18 @@ def test_read_body_signals_returns_prompt_and_data(tmp_path: Path):
     _deps.reset_services_cache()
     _seed_hrv(tmp_path, 7)
     result = read_body_signals(date="2026-07-25", _data_dir=tmp_path)
-    for key in ("prompt", "hrv", "resting_hr", "sleep", "rpe", "baseline", "deviation_pct", "readiness_level", "yesterday_session", "recent_high_intensity"):
+    for key in (
+        "prompt",
+        "hrv",
+        "resting_hr",
+        "sleep",
+        "rpe",
+        "baseline",
+        "deviation_pct",
+        "readiness_level",
+        "yesterday_session",
+        "recent_high_intensity",
+    ):
         assert key in result
     # prompt 应已填充
     assert "{readiness_level}" not in result["prompt"]

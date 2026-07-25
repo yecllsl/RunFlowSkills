@@ -2,10 +2,10 @@
 
 薄包装：调 AnalysisService.analyze_fatigue → 附 prompt。
 """
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from run_flow_skills_mcp.tools._deps import get_services, reset_services_cache
 
@@ -28,7 +28,7 @@ _FATIGUE_PROMPT = """已分析用户 {days} 天疲劳度。
 
 def analyze_fatigue(
     days: int = 7,
-    _data_dir: Optional[Path] = None,
+    _data_dir: Path | None = None,
 ) -> dict:
     """综合疲劳度评估.
 
@@ -50,7 +50,9 @@ def analyze_fatigue(
         fatigue_score=data.get("fatigue_score", 0),
         risk_level=data.get("risk_level", "low"),
         main_factors=data.get("main_factors", []),
-        hrv_deviation=data.get("hrv_deviation") if data.get("hrv_deviation") is not None else "无数据",
+        hrv_deviation=data.get("hrv_deviation")
+        if data.get("hrv_deviation") is not None
+        else "无数据",
         tsb=data.get("tsb") if data.get("tsb") is not None else "无数据",
     )
 

@@ -6,10 +6,10 @@
 - reasoning/recommendation/trace_chain 由宿主 AI 生成后传入
 - Tool 不调 LLM，只负责持久化
 """
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from run_flow_skills_mcp.prompts.decision_trace import DECISION_TRACE_TEMPLATE
 from run_flow_skills_mcp.tools._deps import get_services, reset_services_cache
@@ -22,8 +22,8 @@ def save_decision_log(
     recommendation: str,
     confidence: float,
     trace_chain: list[str],
-    related_session_ids: Optional[list[str]] = None,
-    _data_dir: Optional[Path] = None,
+    related_session_ids: list[str] | None = None,
+    _data_dir: Path | None = None,
 ) -> dict:
     """保存 AI 决策记录.
 

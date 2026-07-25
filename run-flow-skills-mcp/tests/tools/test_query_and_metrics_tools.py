@@ -1,4 +1,5 @@
 """query_sessions / calc_metrics tool 测试（spec FR-ANALYZE-01, 6.1）."""
+
 from datetime import datetime, timedelta
 from pathlib import Path
 

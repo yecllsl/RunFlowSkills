@@ -5,11 +5,11 @@
 - get_trends: 时间序列（vdot/load/hrv）
 - analyze_fatigue: 综合疲劳度评估（HRV + TSB + RPE）
 """
+
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import UTC, datetime, timedelta
 
 from run_flow_skills_mcp.calculators.fatigue import calc_fatigue_score
 from run_flow_skills_mcp.calculators.hrv import (
@@ -28,17 +28,13 @@ from run_flow_skills_mcp.storage.parquet_store import ParquetStore
 class AnalysisService:
     """分析编排服务."""
 
-    def __init__(
-        self, parquet_store: ParquetStore, json_store: JsonStore
-    ) -> None:
+    def __init__(self, parquet_store: ParquetStore, json_store: JsonStore) -> None:
         self.parquet_store = parquet_store
         self.json_store = json_store
 
     def calc_metrics(self, date_from: str, date_to: str) -> dict:
         """聚合区间训练指标."""
-        sessions = self.parquet_store.query_sessions(
-            date_from=date_from, date_to=date_to
-        )
+        sessions = self.parquet_store.query_sessions(date_from=date_from, date_to=date_to)
         if not sessions:
             return {
                 "vdot_trend": [],
@@ -98,38 +94,33 @@ class AnalysisService:
 
     def get_trends(self, days: int = 30, metric: str = "vdot") -> dict:
         """获取时间序列趋势."""
-        end = datetime.now(timezone.utc)
+        end = datetime.now(UTC)
         start = end - timedelta(days=days)
         date_from = start.strftime("%Y-%m-%d")
         date_to = end.strftime("%Y-%m-%d")
 
         if metric == "vdot":
-            sessions = self.parquet_store.query_sessions(
-                date_from=date_from, date_to=date_to
-            )
-            metrics = self.parquet_store.query_metrics(
-                [s.session_id for s in sessions]
-            )
+            sessions = self.parquet_store.query_sessions(date_from=date_from, date_to=date_to)
+            metrics = self.parquet_store.query_metrics([s.session_id for s in sessions])
             metrics_map = {m.session_id: m for m in metrics}
             series = [
-                {"date": s.activity_date.strftime("%Y-%m-%d"),
-                 "value": metrics_map[s.session_id].vdot}
+                {
+                    "date": s.activity_date.strftime("%Y-%m-%d"),
+                    "value": metrics_map[s.session_id].vdot,
+                }
                 for s in sessions
-                if s.session_id in metrics_map
-                and metrics_map[s.session_id].vdot is not None
+                if s.session_id in metrics_map and metrics_map[s.session_id].vdot is not None
             ]
         elif metric == "load":
             loads = self.json_store.query_load(date_from=date_from, date_to=date_to)
             series = [
-                {"date": l.date, "value": l.ctl, "atl": l.atl, "tsb": l.tsb}
-                for l in loads
+                {"date": load.date, "value": load.ctl, "atl": load.atl, "tsb": load.tsb}
+                for load in loads
             ]
         elif metric == "hrv":
             signals = self.json_store.query_body_signals(date_from, date_to)
             series = [
-                {"date": s.date, "value": s.hrv_rmssd}
-                for s in signals
-                if s.hrv_rmssd is not None
+                {"date": s.date, "value": s.hrv_rmssd} for s in signals if s.hrv_rmssd is not None
             ]
         else:
             return {"series": [], "change_pct": 0.0, "baseline": None}
@@ -149,7 +140,7 @@ class AnalysisService:
 
     def analyze_fatigue(self, days: int = 7) -> dict:
         """综合疲劳度评估（HRV + TSB + RPE）."""
-        end = datetime.now(timezone.utc)
+        end = datetime.now(UTC)
         start = end - timedelta(days=days)
         date_from = start.strftime("%Y-%m-%d")
         date_to = end.strftime("%Y-%m-%d")
@@ -159,7 +150,7 @@ class AnalysisService:
         hrv_values = [s.hrv_rmssd for s in signals if s.hrv_rmssd is not None]
         rpe_trend = [s.rpe for s in signals if s.rpe is not None] or None
 
-        hrv_deviation: Optional[float] = None
+        hrv_deviation: float | None = None
         if hrv_values:
             current_hrv = hrv_values[-1]
             baseline = calc_hrv_baseline(hrv_values[:-1] if len(hrv_values) > 1 else hrv_values)
@@ -181,9 +172,7 @@ class AnalysisService:
             "tsb": tsb,
         }
 
-    def _daily_tss_map(
-        self, sessions: list, metrics_map: dict
-    ) -> dict[str, float]:
+    def _daily_tss_map(self, sessions: list, metrics_map: dict) -> dict[str, float]:
         """按日聚合 TSS."""
         daily: dict[str, float] = defaultdict(float)
         for s in sessions:

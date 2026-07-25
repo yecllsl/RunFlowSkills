@@ -2,10 +2,10 @@
 
 薄包装：参数校验 → 调 ImportService.import_manual → 附 prompt。
 """
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from run_flow_skills_mcp.tools._deps import get_services, reset_services_cache
 
@@ -26,7 +26,7 @@ _IMPORT_MANUAL_PROMPT = """用户已手动录入训练记录。
 def import_manual(
     manual_data: dict,
     force: bool = False,
-    _data_dir: Optional[Path] = None,
+    _data_dir: Path | None = None,
 ) -> dict:
     """手动录入训练记录.
 

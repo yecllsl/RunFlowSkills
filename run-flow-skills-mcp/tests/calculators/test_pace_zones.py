@@ -1,4 +1,5 @@
 """配速区间计算单元测试（spec 8.1.6, FR-PLAN-03）."""
+
 import pytest
 
 from run_flow_skills_mcp.calculators.pace_zones import (

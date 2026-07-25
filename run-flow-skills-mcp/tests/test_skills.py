@@ -1,4 +1,5 @@
 """Skills SKILL.md 文件测试."""
+
 import re
 from pathlib import Path
 
@@ -9,10 +10,20 @@ _SKILLS_DIR = _PROJECT_ROOT / ".trae" / "skills"
 
 # 14 个合法 Tool 名称（Plan 2）
 VALID_TOOLS = {
-    "import_file", "import_manual", "query_sessions", "calc_metrics",
-    "get_trends", "analyze_fatigue", "generate_plan", "query_plan",
-    "get_period_summary", "read_body_signals", "get_decision_trace",
-    "save_decision_log", "get_statistics", "export_data",
+    "import_file",
+    "import_manual",
+    "query_sessions",
+    "calc_metrics",
+    "get_trends",
+    "analyze_fatigue",
+    "generate_plan",
+    "query_plan",
+    "get_period_summary",
+    "read_body_signals",
+    "get_decision_trace",
+    "save_decision_log",
+    "get_statistics",
+    "export_data",
 }
 
 EXPECTED_SKILLS = [
@@ -55,10 +66,15 @@ def test_skill_referenced_tools_are_valid(skill_name):
     path = _SKILLS_DIR / skill_name / "SKILL.md"
     content = path.read_text(encoding="utf-8")
     # 提取反引号包裹的 tool 名称（如 `import_file`）
-    referenced = set(re.findall(r"`(import_file|import_manual|query_sessions|calc_metrics|"
-                                r"get_trends|analyze_fatigue|generate_plan|query_plan|"
-                                r"get_period_summary|read_body_signals|get_decision_trace|"
-                                r"save_decision_log|get_statistics|export_data)`", content))
+    referenced = set(
+        re.findall(
+            r"`(import_file|import_manual|query_sessions|calc_metrics|"
+            r"get_trends|analyze_fatigue|generate_plan|query_plan|"
+            r"get_period_summary|read_body_signals|get_decision_trace|"
+            r"save_decision_log|get_statistics|export_data)`",
+            content,
+        )
+    )
     # 至少引用 1 个 tool
     assert len(referenced) >= 1, f"{skill_name} 未引用任何 tool"
     # 所有引用都在合法集合内（正则已保证，这里冗余检查）

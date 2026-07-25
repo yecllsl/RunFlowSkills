@@ -1,4 +1,5 @@
 """文档文件测试."""
+
 from pathlib import Path
 
 import pytest

@@ -1,4 +1,5 @@
 """JSON 存储测试（spec 5.1, M-3 评审修正）."""
+
 from datetime import datetime
 from pathlib import Path
 
@@ -37,11 +38,19 @@ def test_save_and_query_load(store: JsonStore):
 def test_save_load_multiple_replaces_by_date(store: JsonStore):
     """同日 TrainingLoad 应覆盖（全量重写按 date 去重）."""
     load1 = TrainingLoad(
-        date="2026-07-25", ctl=60.0, atl=55.0, tsb=5.0, weekly_tss=300.0,
+        date="2026-07-25",
+        ctl=60.0,
+        atl=55.0,
+        tsb=5.0,
+        weekly_tss=300.0,
         updated_at=datetime(2026, 7, 25, 10, 0),
     )
     load2 = TrainingLoad(
-        date="2026-07-25", ctl=65.0, atl=58.0, tsb=7.0, weekly_tss=350.0,
+        date="2026-07-25",
+        ctl=65.0,
+        atl=58.0,
+        tsb=7.0,
+        weekly_tss=350.0,
         updated_at=datetime(2026, 7, 25, 23, 0),
     )
     store.save_load(load1)

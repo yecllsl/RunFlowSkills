@@ -5,10 +5,10 @@
 注意（interaction-rules.md 第 3 条）：导出前需用户确认。
 本 tool 仅执行导出，确认由调用方（Skill/Web）处理。
 """
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from run_flow_skills_mcp.tools._deps import get_services, reset_services_cache
 
@@ -28,15 +28,15 @@ _EXPORT_PROMPT = """已导出用户训练数据。
 
 
 def export_data(
-    format: str,
-    filters: Optional[dict] = None,
+    export_format: str,
+    filters: dict | None = None,
     include_ai_logs: bool = False,
-    _data_dir: Optional[Path] = None,
+    _data_dir: Path | None = None,
 ) -> dict:
     """导出训练数据.
 
     Args:
-        format: 导出格式（csv/json/parquet/md）
+        export_format: 导出格式（csv/json/parquet/md）
         filters: 过滤条件 {date_from?, date_to?, source?}
         include_ai_logs: 是否包含决策日志
         _data_dir: 测试注入数据目录
@@ -49,12 +49,12 @@ def export_data(
 
     services = get_services(_data_dir)
     result = services.stats_service.export_data(
-        format=format, filters=filters, include_ai_logs=include_ai_logs
+        export_format=export_format, filters=filters, include_ai_logs=include_ai_logs
     )
 
     if "error" in result:
         result["prompt"] = _EXPORT_PROMPT.format(
-            format=format,
+            format=export_format,
             file_path="（失败）",
             rows_count=0,
             include_ai_logs=include_ai_logs,
@@ -62,7 +62,7 @@ def export_data(
         return result
 
     result["prompt"] = _EXPORT_PROMPT.format(
-        format=result.get("format", format),
+        format=result.get("format", export_format),
         file_path=result.get("file_path", ""),
         rows_count=result.get("rows_count", 0),
         include_ai_logs=include_ai_logs,

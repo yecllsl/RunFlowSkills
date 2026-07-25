@@ -1,9 +1,10 @@
 """prompts 模板单元测试."""
+
 from run_flow_skills_mcp.prompts.analyze_prompt import ANALYZE_PROMPT
-from run_flow_skills_mcp.prompts.plan_prompt import PLAN_PROMPT
-from run_flow_skills_mcp.prompts.review_prompt import REVIEW_PROMPT
 from run_flow_skills_mcp.prompts.coach_prompt import COACH_PROMPT
 from run_flow_skills_mcp.prompts.decision_trace import DECISION_TRACE_TEMPLATE
+from run_flow_skills_mcp.prompts.plan_prompt import PLAN_PROMPT
+from run_flow_skills_mcp.prompts.review_prompt import REVIEW_PROMPT
 
 
 def test_analyze_prompt_has_placeholders():
@@ -66,8 +67,13 @@ def test_decision_trace_template_has_placeholders():
 def test_prompts_format_correctly():
     """模板可用 .format() 填充."""
     filled = ANALYZE_PROMPT.format(
-        vdot=45.0, tss=100.0, ctl=65.0, atl=58.0, tsb=7.0,
-        hr_zones_dist="Z2:40%, Z3:30%", days=30,
+        vdot=45.0,
+        tss=100.0,
+        ctl=65.0,
+        atl=58.0,
+        tsb=7.0,
+        hr_zones_dist="Z2:40%, Z3:30%",
+        days=30,
     )
     assert "45.0" in filled
     assert "65.0" in filled

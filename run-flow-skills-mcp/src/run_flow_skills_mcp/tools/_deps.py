@@ -5,11 +5,11 @@
 
 单例缓存：同一进程内多次调用只创建一次 services（按 data_dir 区分）。
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 from run_flow_skills_mcp.constants import DATA_DIR as _DEFAULT_DATA_DIR
 from run_flow_skills_mcp.services.analysis_service import AnalysisService
@@ -42,7 +42,7 @@ class Services:
 _cache: dict[str, Services] = {}
 
 
-def get_services(data_dir: Optional[Path] = None) -> Services:
+def get_services(data_dir: Path | None = None) -> Services:
     """获取 services 单例（按 data_dir 缓存）.
 
     Args:

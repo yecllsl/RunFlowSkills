@@ -1,4 +1,5 @@
 """HRV 计算单元测试（spec 8.1.8, FR-ANALYZE-04）."""
+
 import pytest
 
 from run_flow_skills_mcp.calculators.hrv import (

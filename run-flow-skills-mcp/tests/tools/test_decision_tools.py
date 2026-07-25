@@ -1,4 +1,5 @@
 """get_decision_trace / save_decision_log tool 测试（spec FR-COACH-02/03, 6.2, 10.1）."""
+
 from pathlib import Path
 
 import pytest

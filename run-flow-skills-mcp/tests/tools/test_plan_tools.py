@@ -1,4 +1,5 @@
 """generate_plan / query_plan tool 测试（spec FR-PLAN-01/02/03/04）."""
+
 from pathlib import Path
 
 import pytest
@@ -50,8 +51,11 @@ def test_query_plan_returns_plan_and_fidelity(tmp_path: Path):
     """query_plan 返回 plan + fidelity + prompt."""
     _deps.reset_services_cache()
     gen = generate_plan(
-        goal_type="5k", goal_time="00:25:00",
-        race_date="2026-10-19", weeks=8, current_vdot=40.0,
+        goal_type="5k",
+        goal_time="00:25:00",
+        race_date="2026-10-19",
+        weeks=8,
+        current_vdot=40.0,
         _data_dir=tmp_path,
     )
     result = query_plan(gen["plan_id"], _data_dir=tmp_path)
@@ -71,8 +75,11 @@ def test_query_plan_no_id_returns_latest(tmp_path: Path):
     """plan_id=None 返回最新计划."""
     _deps.reset_services_cache()
     generate_plan(
-        goal_type="5k", goal_time="00:25:00",
-        race_date="2026-10-19", weeks=8, current_vdot=40.0,
+        goal_type="5k",
+        goal_time="00:25:00",
+        race_date="2026-10-19",
+        weeks=8,
+        current_vdot=40.0,
         _data_dir=tmp_path,
     )
     result = query_plan(_data_dir=tmp_path)

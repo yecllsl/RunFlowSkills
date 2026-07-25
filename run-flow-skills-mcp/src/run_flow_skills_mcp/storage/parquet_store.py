@@ -1,9 +1,9 @@
 """Parquet 存储引擎 - Session/Metrics 按年分片（spec 5.1）."""
+
 from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 import polars as pl
 
@@ -99,12 +99,10 @@ class ParquetStore:
         else:
             new_df.write_parquet(path)
 
-    def _find_session_year(self, session_id: str) -> Optional[int]:
+    def _find_session_year(self, session_id: str) -> int | None:
         """从所有 sessions_YYYY.parquet 中查找 session_id 对应年份."""
         for path in self.sessions_dir.glob("sessions_*.parquet"):
-            df = pl.scan_parquet(path).filter(
-                pl.col("session_id") == session_id
-            ).collect()
+            df = pl.scan_parquet(path).filter(pl.col("session_id") == session_id).collect()
             if len(df) > 0:
                 stem = path.stem  # sessions_YYYY
                 return int(stem.split("_")[1])
@@ -112,10 +110,10 @@ class ParquetStore:
 
     def query_sessions(
         self,
-        date_from: Optional[str] = None,
-        date_to: Optional[str] = None,
-        source: Optional[str] = None,
-        limit: Optional[int] = None,
+        date_from: str | None = None,
+        date_to: str | None = None,
+        source: str | None = None,
+        limit: int | None = None,
     ) -> list[Session]:
         """查询 Session 列表.
 
@@ -138,9 +136,7 @@ class ParquetStore:
             df = df.filter(pl.col("activity_date") >= dt_from)
         if date_to:
             # date_to 含当天，设为 23:59:59
-            dt_to = datetime.strptime(date_to, "%Y-%m-%d").replace(
-                hour=23, minute=59, second=59
-            )
+            dt_to = datetime.strptime(date_to, "%Y-%m-%d").replace(hour=23, minute=59, second=59)
             df = df.filter(pl.col("activity_date") <= dt_to)
         if source:
             df = df.filter(pl.col("source") == source)
@@ -165,15 +161,13 @@ class ParquetStore:
         collected = df.collect()
         return [TrainingMetrics.model_validate(row) for row in collected.to_dicts()]
 
-    def find_by_hash(self, raw_file_hash: str) -> Optional[Session]:
+    def find_by_hash(self, raw_file_hash: str) -> Session | None:
         """通过 raw_file_hash 查找 Session（去重用）."""
         if not raw_file_hash:
             return None
         paths = sorted(self.sessions_dir.glob("sessions_*.parquet"))
         for path in paths:
-            df = pl.scan_parquet(path).filter(
-                pl.col("raw_file_hash") == raw_file_hash
-            ).collect()
+            df = pl.scan_parquet(path).filter(pl.col("raw_file_hash") == raw_file_hash).collect()
             if len(df) > 0:
                 return _row_to_session(df.to_dicts()[0])
         return None

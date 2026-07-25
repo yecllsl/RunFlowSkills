@@ -1,5 +1,5 @@
 """import_service 测试（spec 5.4, FR-IMPORT-01/05）."""
-from datetime import datetime
+
 from pathlib import Path
 
 import pytest
@@ -118,5 +118,5 @@ def test_import_recomputes_training_load(service: ImportService, tmp_path: Path)
     loads = service.json_store.query_load()
     assert len(loads) > 0
     # 当日应有 TrainingLoad 记录
-    today_load = [l for l in loads if l.date == "2026-07-25"]
+    today_load = [load for load in loads if load.date == "2026-07-25"]
     assert len(today_load) == 1

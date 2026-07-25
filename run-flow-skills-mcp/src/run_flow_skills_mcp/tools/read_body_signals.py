@@ -4,18 +4,18 @@
 
 注意：readiness_level 由 service 内部综合 HRV + TSB + RPE 计算（spec 6.2）。
 """
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from run_flow_skills_mcp.prompts.coach_prompt import COACH_PROMPT
 from run_flow_skills_mcp.tools._deps import get_services, reset_services_cache
 
 
 def read_body_signals(
-    date: Optional[str] = None,
-    _data_dir: Optional[Path] = None,
+    date: str | None = None,
+    _data_dir: Path | None = None,
 ) -> dict:
     """读取今日身体信号 + 计算就绪状态.
 
@@ -38,9 +38,7 @@ def read_body_signals(
         hrv=data.get("hrv") if data.get("hrv") is not None else "无数据",
         hrv_baseline=data.get("baseline") if data.get("baseline") is not None else "无数据",
         hrv_deviation_pct=(
-            round(data["deviation_pct"], 1)
-            if data.get("deviation_pct") is not None
-            else "无数据"
+            round(data["deviation_pct"], 1) if data.get("deviation_pct") is not None else "无数据"
         ),
         resting_hr=data.get("resting_hr") if data.get("resting_hr") is not None else "无数据",
         sleep_quality=data.get("sleep") if data.get("sleep") is not None else "无数据",

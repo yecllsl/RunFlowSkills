@@ -2,10 +2,10 @@
 
 薄包装：调 CoachService.get_decision_trace → 附 prompt。
 """
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from run_flow_skills_mcp.tools._deps import get_services, reset_services_cache
 
@@ -27,7 +27,7 @@ _GET_TRACE_PROMPT = """已查询决策溯源链。
 
 def get_decision_trace(
     decision_id: str,
-    _data_dir: Optional[Path] = None,
+    _data_dir: Path | None = None,
 ) -> dict:
     """查询决策溯源链.
 

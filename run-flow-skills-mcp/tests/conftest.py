@@ -1,4 +1,5 @@
 """Pytest 公共 fixture."""
+
 from __future__ import annotations
 
 import tempfile

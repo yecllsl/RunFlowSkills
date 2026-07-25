@@ -1,8 +1,7 @@
 """mcp.json 配置文件测试."""
+
 import json
 from pathlib import Path
-
-import pytest
 
 _PROJECT_ROOT = Path(__file__).parent.parent.parent
 _MCP_JSON = _PROJECT_ROOT / ".trae" / "mcp.json"

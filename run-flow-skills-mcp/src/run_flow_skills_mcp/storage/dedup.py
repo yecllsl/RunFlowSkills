@@ -3,9 +3,8 @@
 - 主去重键：raw_file_hash（SHA256）
 - 跨平台去重：时间戳 ±5 分钟 + 距离 ±2% + 时长 ±30 秒
 """
-from __future__ import annotations
 
-from typing import Optional
+from __future__ import annotations
 
 from run_flow_skills_mcp.constants import (
     DEDUP_DISTANCE_TOLERANCE_PCT,
@@ -16,9 +15,7 @@ from run_flow_skills_mcp.models import Session
 from run_flow_skills_mcp.storage.parquet_store import ParquetStore
 
 
-def check_hash_duplicate(
-    store: ParquetStore, raw_file_hash: str
-) -> Optional[Session]:
+def check_hash_duplicate(store: ParquetStore, raw_file_hash: str) -> Session | None:
     """通过 SHA256 查找已存在的 Session（spec 5.3 主去重键）."""
     if not raw_file_hash:
         return None
@@ -54,9 +51,7 @@ def is_cross_platform_match(s1: Session, s2: Session) -> bool:
     return True
 
 
-def find_cross_platform_duplicate(
-    store: ParquetStore, candidate: Session
-) -> Optional[Session]:
+def find_cross_platform_duplicate(store: ParquetStore, candidate: Session) -> Session | None:
     """查找 candidate 是否与已存 Session 跨平台重复.
 
     Returns:

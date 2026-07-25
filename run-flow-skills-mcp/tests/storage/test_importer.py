@@ -1,4 +1,5 @@
 """导入器测试（spec FR-IMPORT-01/02/03, M-1 评审修正 GPX）."""
+
 import hashlib
 from pathlib import Path
 

@@ -1,7 +1,6 @@
 """构建脚本测试."""
-from pathlib import Path
 
-import pytest
+from pathlib import Path
 
 _PROJECT_ROOT = Path(__file__).parent.parent.parent
 
@@ -63,9 +62,11 @@ def test_build_scripts_verify_no_venv_included():
     for filename in ["build-release.ps1", "build-release.sh"]:
         content = (_PROJECT_ROOT / "scripts" / filename).read_text(encoding="utf-8")
         # 必须显式检查 .venv 未被误包含
-        assert ".venv was accidentally included" in content or \
-               ".venv was accidentally" in content or \
-               "venv" in content.lower()
+        assert (
+            ".venv was accidentally included" in content
+            or ".venv was accidentally" in content
+            or "venv" in content.lower()
+        )
 
 
 def test_build_scripts_verify_no_user_data_in_data_dir():
@@ -74,8 +75,9 @@ def test_build_scripts_verify_no_user_data_in_data_dir():
         content = (_PROJECT_ROOT / "scripts" / filename).read_text(encoding="utf-8")
         # 必须验证 data/ 下无用户数据
         assert ".gitkeep" in content
-        assert "user data" in content.lower() or "user_data" in content.lower() or \
-               "data/" in content
+        assert (
+            "user data" in content.lower() or "user_data" in content.lower() or "data/" in content
+        )
 
 
 def test_build_scripts_verify_no_dist_included():

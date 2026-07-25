@@ -1,4 +1,5 @@
 """analysis_service 测试（spec FR-ANALYZE-01/04/05）."""
+
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -32,16 +33,20 @@ def _seed_sessions(import_service: ImportService, n: int = 10):
     for i in range(n):
         days_ago = n - i
         date = (datetime(2026, 7, 25) - timedelta(days=days_ago)).strftime("%Y-%m-%dT06:00:00")
-        import_service.import_manual({
-            "activity_date": date,
-            "distance_m": 10000.0,
-            "duration_s": 3000,  # 50 分钟，配速 5'00"/km
-            "source": "manual",
-            "avg_hr": 150,
-        })
+        import_service.import_manual(
+            {
+                "activity_date": date,
+                "distance_m": 10000.0,
+                "duration_s": 3000,  # 50 分钟，配速 5'00"/km
+                "source": "manual",
+                "avg_hr": 150,
+            }
+        )
 
 
-def test_calc_metrics_returns_required_fields(service: AnalysisService, import_service: ImportService):
+def test_calc_metrics_returns_required_fields(
+    service: AnalysisService, import_service: ImportService
+):
     """calc_metrics 必须返回 spec 6.1 定义的所有字段."""
     _seed_sessions(import_service, 10)
     result = service.calc_metrics("2026-07-15", "2026-07-25")
@@ -83,7 +88,9 @@ def test_get_trends_invalid_metric_returns_empty(service: AnalysisService):
     assert result["series"] == []
 
 
-def test_analyze_fatigue_returns_required_fields(service: AnalysisService, import_service: ImportService):
+def test_analyze_fatigue_returns_required_fields(
+    service: AnalysisService, import_service: ImportService
+):
     """analyze_fatigue 返回 spec 6.1 字段."""
     _seed_sessions(import_service, 10)
     # 灌入 HRV 数据

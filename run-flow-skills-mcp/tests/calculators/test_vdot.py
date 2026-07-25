@@ -1,4 +1,5 @@
 """VDOT 计算单元测试（spec 8.1.1, FR-ANALYZE-01）."""
+
 from run_flow_skills_mcp.calculators.vdot import calc_vdot
 
 

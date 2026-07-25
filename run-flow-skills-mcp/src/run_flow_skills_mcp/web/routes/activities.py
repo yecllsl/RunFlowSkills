@@ -3,6 +3,7 @@
 提供活动列表片段、单题详情片段和 sessions JSON API。
 直接读取 parquet_store（通过 Services 容器），因为 services 层无 list_sessions 方法。
 """
+
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
 
@@ -34,9 +35,7 @@ def _format_duration(s: int) -> str:
     return f"{h:02d}:{m:02d}:{sec:02d}"
 
 
-def _list_sessions(
-    date_from: str = "", date_to: str = "", source: str = "", page: int = 1
-) -> dict:
+def _list_sessions(date_from: str = "", date_to: str = "", source: str = "", page: int = 1) -> dict:
     """查询 session 列表 + 关联 metrics，分页返回."""
     svc = get_services()
     sessions = svc.parquet_store.query_sessions(
@@ -53,9 +52,7 @@ def _list_sessions(
 
     # 关联 metrics
     if page_sessions:
-        metrics = svc.parquet_store.query_metrics(
-            [s.session_id for s in page_sessions]
-        )
+        metrics = svc.parquet_store.query_metrics([s.session_id for s in page_sessions])
         metrics_map = {m.session_id: m for m in metrics}
     else:
         metrics_map = {}
@@ -63,17 +60,19 @@ def _list_sessions(
     session_list = []
     for s in page_sessions:
         m = metrics_map.get(s.session_id)
-        session_list.append({
-            "session_id": s.session_id,
-            "activity_date": s.activity_date.strftime("%Y-%m-%d"),
-            "distance_m": s.distance_m,
-            "distance_km": round(s.distance_m / 1000, 2),
-            "duration": _format_duration(s.duration_s),
-            "pace": _format_pace(s.avg_pace_s_per_km),
-            "avg_hr": s.avg_hr,
-            "vdot": round(m.vdot, 1) if m and m.vdot else None,
-            "source": s.source,
-        })
+        session_list.append(
+            {
+                "session_id": s.session_id,
+                "activity_date": s.activity_date.strftime("%Y-%m-%d"),
+                "distance_m": s.distance_m,
+                "distance_km": round(s.distance_m / 1000, 2),
+                "duration": _format_duration(s.duration_s),
+                "pace": _format_pace(s.avg_pace_s_per_km),
+                "avg_hr": s.avg_hr,
+                "vdot": round(m.vdot, 1) if m and m.vdot else None,
+                "source": s.source,
+            }
+        )
 
     return {
         "sessions": session_list,

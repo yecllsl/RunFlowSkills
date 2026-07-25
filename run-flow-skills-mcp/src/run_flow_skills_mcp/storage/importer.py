@@ -3,6 +3,7 @@
 GPX/TCX 用标准库 xml.etree，无新依赖（M-1 决策）。
 FIT 用 fitparse 库。
 """
+
 from __future__ import annotations
 
 import csv
@@ -10,9 +11,8 @@ import hashlib
 import math
 import xml.etree.ElementTree as ET
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Optional
 
 from run_flow_skills_mcp.constants import SUPPORTED_IMPORT_EXT
 from run_flow_skills_mcp.models import Session, SourceType
@@ -80,7 +80,7 @@ def parse_gpx(path: Path, source: SourceType = "garmin") -> Session:
 
     if not times:
         # 无时间戳，用文件修改时间
-        activity_date = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
+        activity_date = datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)
         duration_s = 0
     else:
         activity_date = times[0]
@@ -122,10 +122,7 @@ def _calc_track_distance(points: list[tuple[float, float]]) -> float:
         phi2 = math.radians(lat2)
         dphi = math.radians(lat2 - lat1)
         dlambda = math.radians(lon2 - lon1)
-        a = (
-            math.sin(dphi / 2) ** 2
-            + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
-        )
+        a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
         total += r * c
     return total
@@ -157,11 +154,11 @@ def parse_fit(path: Path, source: SourceType = "garmin") -> Session:
     try:
         fitfile = FitFile(str(path))
         # 提取关键信息
-        activity_date: Optional[datetime] = None
+        activity_date: datetime | None = None
         total_distance = 0.0
         total_timer_time = 0
-        avg_hr: Optional[int] = None
-        max_hr: Optional[int] = None
+        avg_hr: int | None = None
+        max_hr: int | None = None
 
         for record in fitfile.get_messages():
             for field in record:
@@ -177,7 +174,7 @@ def parse_fit(path: Path, source: SourceType = "garmin") -> Session:
                     activity_date = field.value
 
         if activity_date is None:
-            activity_date = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
+            activity_date = datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)
 
         distance_m = total_distance
         duration_s = max(total_timer_time, 1)
@@ -250,7 +247,7 @@ def parse_tcx(path: Path, source: SourceType = "garmin") -> Session:
         activity_date = (
             _parse_gpx_time(id_elem.text)
             if id_elem is not None and id_elem.text
-            else datetime.now(timezone.utc)
+            else datetime.now(UTC)
         )
 
         distance_elem = activity.find(f".//{ns}DistanceMeters")
@@ -313,7 +310,7 @@ def parse_xml(path: Path, source: SourceType = "apple") -> Session:
         raise ImportParseError(f"Apple Health XML 解析失败: {e}") from e
 
 
-def parse_file(path: Path, source: Optional[SourceType] = None) -> Session:
+def parse_file(path: Path, source: SourceType | None = None) -> Session:
     """根据文件扩展名分发到对应解析器（spec FR-IMPORT-01）.
 
     Args:

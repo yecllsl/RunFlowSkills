@@ -1,4 +1,5 @@
 """dashboard 路由测试."""
+
 from pathlib import Path
 
 
@@ -25,8 +26,8 @@ def test_dashboard_summary_api_empty_data(client):
 
 def test_dashboard_summary_api_with_data(client, tmp_data_dir: Path):
     """有数据时 API 返回非零 KPI."""
-    from tests.web.conftest import seed_gpx_file
     from run_flow_skills_mcp.web.deps import get_services
+    from tests.web.conftest import seed_gpx_file
 
     svc = get_services(tmp_data_dir)
     gpx = seed_gpx_file(tmp_data_dir / "uploads" / "test.gpx")

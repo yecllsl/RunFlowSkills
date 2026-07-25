@@ -1,13 +1,15 @@
 """VDOT 计算器 - Powers 方法（spec 8.1.1, FR-ANALYZE-01）.
 
 参考：Jack Daniels' VDOT formula
-VDOT = (-4.6 + 0.182258 * VO2 + 0.000104 * VO2^2) / (0.8 + 0.1894393 * e^(-0.012778*t) + 0.2989558 * e^(-0.1932605*t))
-VO2 = 0.000104 * distance_m^2 / duration_min + 0.182258 * distance_m / duration_min - 4.60
+VDOT = (-4.6 + 0.182258*VO2 + 0.000104*VO2^2)
+    / (0.8 + 0.1894393*e^(-0.012778*t) + 0.2989558*e^(-0.1932605*t))
+VO2 = 0.000104*distance_m^2/duration_min + 0.182258*distance_m/duration_min - 4.60
 """
+
 from __future__ import annotations
 
 import math
-from typing import Literal, Optional
+from typing import Literal
 
 from run_flow_skills_mcp.constants import VDOT_MIN_DISTANCE_M
 
@@ -34,7 +36,9 @@ def _compute_vdot_from_vo2(vo2: float, duration_min: float) -> float:
     return vo2 / denom
 
 
-def calc_vdot(distance_m: float, duration_s: int) -> tuple[Optional[float], Literal["high", "estimated", "low"]]:
+def calc_vdot(
+    distance_m: float, duration_s: int
+) -> tuple[float | None, Literal["high", "estimated", "low"]]:
     """计算 VDOT（Powers 方法）.
 
     Args:

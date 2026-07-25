@@ -3,6 +3,7 @@
 创建 FastAPI 应用实例，挂载静态文件，注册 4 个路由模块。
 提供 main() 作为 CLI 入口，绑定 127.0.0.1:8002 启动 uvicorn。
 """
+
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -43,8 +44,8 @@ def create_app() -> FastAPI:
 
     # 注册路由模块（懒导入避免循环依赖）
     from run_flow_skills_mcp.web.routes import (
-        dashboard,
         activities,
+        dashboard,
         import_page,
         settings,
     )
@@ -63,6 +64,7 @@ def main():
     绑定 127.0.0.1:8002，仅本机访问。
     """
     import uvicorn
+
     from run_flow_skills_mcp.constants import WEB_HOST, WEB_PORT
 
     uvicorn.run(

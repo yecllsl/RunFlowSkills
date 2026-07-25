@@ -1,4 +1,5 @@
 """Web 端到端集成测试：完整工作流（导入 → 仪表盘 → 活动列表 → 设置 → 导出）."""
+
 import io
 from pathlib import Path
 
@@ -9,7 +10,7 @@ def test_full_workflow_import_to_dashboard(client, tmp_data_dir: Path):
     """完整工作流：导入 → 仪表盘显示 → 活动列表 → 设置 → 导出."""
     from run_flow_skills_mcp.web.deps import get_services
 
-    svc = get_services(tmp_data_dir)
+    get_services(tmp_data_dir)
 
     # 1. 导入 GPX 文件
     gpx = seed_gpx_file(tmp_data_dir / "uploads" / "run1.gpx", date="2026-07-20")
@@ -47,7 +48,12 @@ def test_full_workflow_import_to_dashboard(client, tmp_data_dir: Path):
 
 def test_all_four_pages_accessible(client):
     """4 个页面片段均返回 200."""
-    for path in ["/partials/dashboard", "/partials/activities", "/partials/import", "/partials/settings"]:
+    for path in [
+        "/partials/dashboard",
+        "/partials/activities",
+        "/partials/import",
+        "/partials/settings",
+    ]:
         resp = client.get(path)
         assert resp.status_code == 200, f"{path} 返回 {resp.status_code}"
 

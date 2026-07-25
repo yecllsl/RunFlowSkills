@@ -5,6 +5,7 @@
 
 确保 tool 返回都含 prompt（spec 10.2）+ 数据一致性。
 """
+
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -79,8 +80,11 @@ def test_full_workflow_import_to_export(tmp_path: Path):
 
     # 4. 计划生成
     p = generate_plan(
-        goal_type="5k", goal_time="00:25:00",
-        race_date="2026-10-19", weeks=8, current_vdot=42.0,
+        goal_type="5k",
+        goal_time="00:25:00",
+        race_date="2026-10-19",
+        weeks=8,
+        current_vdot=42.0,
         _data_dir=tmp_path,
     )
     assert "prompt" in p
@@ -130,7 +134,7 @@ def test_full_workflow_import_to_export(tmp_path: Path):
     assert len(s["groups"]) > 0
 
     # 12. 导出
-    e = export_data(format="json", include_ai_logs=True, _data_dir=tmp_path)
+    e = export_data(export_format="json", include_ai_logs=True, _data_dir=tmp_path)
     assert e["rows_count"] > 0
     assert Path(e["file_path"]).exists()
     assert "prompt" in e
@@ -143,7 +147,12 @@ def test_all_tools_return_prompt(tmp_path: Path):
 
     results = [
         import_manual(
-            {"activity_date": "2026-07-26T06:00:00", "distance_m": 5000.0, "duration_s": 1500, "source": "manual"},
+            {
+                "activity_date": "2026-07-26T06:00:00",
+                "distance_m": 5000.0,
+                "duration_s": 1500,
+                "source": "manual",
+            },
             _data_dir=tmp_path,
         ),
         query_sessions(_data_dir=tmp_path),
@@ -160,19 +169,20 @@ def test_all_tools_return_prompt(tmp_path: Path):
     ]
 
     for i, r in enumerate(results):
-        assert "prompt" in r, f"第 {i+1} 个 tool 缺少 prompt 字段: {r}"
+        assert "prompt" in r, f"第 {i + 1} 个 tool 缺少 prompt 字段: {r}"
 
     # import_file 单独测（需要真实文件）
     gpx = tmp_path / "test.gpx"
     gpx.write_text(
         '<?xml version="1.0"?><gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">'
-        '<trk><trkseg>'
+        "<trk><trkseg>"
         '<trkpt lat="39.9" lon="116.4"><time>2026-07-27T06:00:00Z</time></trkpt>'
         '<trkpt lat="39.91" lon="116.41"><time>2026-07-27T06:30:00Z</time></trkpt>'
-        '</trkseg></trk></gpx>',
+        "</trkseg></trk></gpx>",
         encoding="utf-8",
     )
     from run_flow_skills_mcp.tools.import_file import import_file
+
     r = import_file(str(gpx), _data_dir=tmp_path)
     assert "prompt" in r
 
@@ -207,17 +217,30 @@ def test_plan_fidelity_with_actual_sessions(tmp_path: Path):
     _deps.reset_services_cache()
     # 生成计划（8 周）
     gen = generate_plan(
-        goal_type="5k", goal_time="00:25:00",
-        race_date="2026-10-19", weeks=8, current_vdot=40.0,
+        goal_type="5k",
+        goal_time="00:25:00",
+        race_date="2026-10-19",
+        weeks=8,
+        current_vdot=40.0,
         _data_dir=tmp_path,
     )
     # 导入一些训练（在计划期内）
     import_manual(
-        {"activity_date": "2026-08-26T06:00:00", "distance_m": 8000.0, "duration_s": 2400, "source": "manual"},
+        {
+            "activity_date": "2026-08-26T06:00:00",
+            "distance_m": 8000.0,
+            "duration_s": 2400,
+            "source": "manual",
+        },
         _data_dir=tmp_path,
     )
     import_manual(
-        {"activity_date": "2026-08-28T06:00:00", "distance_m": 6000.0, "duration_s": 1800, "source": "manual"},
+        {
+            "activity_date": "2026-08-28T06:00:00",
+            "distance_m": 6000.0,
+            "duration_s": 1800,
+            "source": "manual",
+        },
         _data_dir=tmp_path,
     )
     _deps.reset_services_cache()

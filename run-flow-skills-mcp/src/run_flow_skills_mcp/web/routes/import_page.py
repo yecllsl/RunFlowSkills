@@ -3,6 +3,7 @@
 核心功能：可视化批量导入，复用 import_service，与 MCP import_file tool 共用。
 安全限制：文件类型白名单、单文件 100MB、批量 100 文件。
 """
+
 import tempfile
 from pathlib import Path
 
@@ -55,11 +56,13 @@ async def import_upload(files: list[UploadFile], force: bool = Form(False)):
         # 文件类型白名单校验
         ext = Path(f.filename).suffix.lower() if f.filename else ""
         if ext not in SUPPORTED_IMPORT_EXT:
-            results.append({
-                "filename": f.filename,
-                "imported": False,
-                "error": f"不支持的文件类型: {ext}（仅支持 {' '.join(SUPPORTED_IMPORT_EXT)}）",
-            })
+            results.append(
+                {
+                    "filename": f.filename,
+                    "imported": False,
+                    "error": f"不支持的文件类型: {ext}（仅支持 {' '.join(SUPPORTED_IMPORT_EXT)}）",
+                }
+            )
             continue
 
         # 保存到临时文件后调 import_file
@@ -68,11 +71,13 @@ async def import_upload(files: list[UploadFile], force: bool = Form(False)):
             content = await f.read()
             # 大小校验
             if len(content) > MAX_UPLOAD_FILE_SIZE_MB * 1024 * 1024:
-                results.append({
-                    "filename": f.filename,
-                    "imported": False,
-                    "error": f"文件超过 {MAX_UPLOAD_FILE_SIZE_MB}MB 限制",
-                })
+                results.append(
+                    {
+                        "filename": f.filename,
+                        "imported": False,
+                        "error": f"文件超过 {MAX_UPLOAD_FILE_SIZE_MB}MB 限制",
+                    }
+                )
                 tmp.close()
                 Path(tmp.name).unlink(missing_ok=True)
                 continue

@@ -2,10 +2,10 @@
 
 薄包装：调 PlanService.query_plan → 附 prompt。
 """
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from run_flow_skills_mcp.tools._deps import get_services, reset_services_cache
 
@@ -26,8 +26,8 @@ _QUERY_PLAN_PROMPT = """已查询用户训练计划。
 
 
 def query_plan(
-    plan_id: Optional[str] = None,
-    _data_dir: Optional[Path] = None,
+    plan_id: str | None = None,
+    _data_dir: Path | None = None,
 ) -> dict:
     """查询训练计划 + 执行忠实度.
 

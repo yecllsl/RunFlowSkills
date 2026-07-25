@@ -1,4 +1,5 @@
 """get_trends / analyze_fatigue tool 测试（spec FR-ANALYZE-04/05）."""
+
 from datetime import datetime, timedelta
 from pathlib import Path
 

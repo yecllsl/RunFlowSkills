@@ -1,4 +1,5 @@
 """stats_service 测试（spec FR-STATS-01/02）."""
+
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -24,10 +25,14 @@ def _seed(import_service: ImportService):
     sources = ["garmin", "apple", "garmin", "coros"]
     for i, src in enumerate(sources):
         date = (datetime(2026, 7, 25) - timedelta(days=i)).strftime("%Y-%m-%dT06:00:00")
-        import_service.import_manual({
-            "activity_date": date, "distance_m": 10000.0,
-            "duration_s": 3000, "source": src,
-        })
+        import_service.import_manual(
+            {
+                "activity_date": date,
+                "distance_m": 10000.0,
+                "duration_s": 3000,
+                "source": src,
+            }
+        )
 
 
 def test_get_statistics_by_source(service: StatsService, import_service: ImportService):
@@ -65,7 +70,7 @@ def test_get_statistics_invalid_dimension_returns_empty(service: StatsService):
 def test_export_data_csv(service: StatsService, import_service: ImportService):
     """导出 CSV."""
     _seed(import_service)
-    result = service.export_data(format="csv")
+    result = service.export_data(export_format="csv")
     assert result["format"] == "csv"
     assert result["rows_count"] > 0
     assert Path(result["file_path"]).exists()
@@ -74,7 +79,7 @@ def test_export_data_csv(service: StatsService, import_service: ImportService):
 def test_export_data_json(service: StatsService, import_service: ImportService):
     """导出 JSON."""
     _seed(import_service)
-    result = service.export_data(format="json")
+    result = service.export_data(export_format="json")
     assert result["format"] == "json"
     assert Path(result["file_path"]).exists()
 
@@ -82,7 +87,7 @@ def test_export_data_json(service: StatsService, import_service: ImportService):
 def test_export_data_parquet(service: StatsService, import_service: ImportService):
     """导出 Parquet."""
     _seed(import_service)
-    result = service.export_data(format="parquet")
+    result = service.export_data(export_format="parquet")
     assert result["format"] == "parquet"
     assert Path(result["file_path"]).exists()
 
@@ -90,7 +95,7 @@ def test_export_data_parquet(service: StatsService, import_service: ImportServic
 def test_export_data_md(service: StatsService, import_service: ImportService):
     """导出 Markdown."""
     _seed(import_service)
-    result = service.export_data(format="md")
+    result = service.export_data(export_format="md")
     assert result["format"] == "md"
     assert Path(result["file_path"]).exists()
 
@@ -100,12 +105,16 @@ def test_export_data_include_ai_logs(service: StatsService, import_service: Impo
     _seed(import_service)
     # 灌入一个决策日志
     from run_flow_skills_mcp.services.coach_service import CoachService
+
     coach = CoachService(service.parquet_store, service.json_store)
     coach.save_decision_log(
-        decision_type="coach", inputs={"hrv": 38},
-        reasoning="test", recommendation="test",
-        confidence=0.7, trace_chain=["a"],
+        decision_type="coach",
+        inputs={"hrv": 38},
+        reasoning="test",
+        recommendation="test",
+        confidence=0.7,
+        trace_chain=["a"],
     )
 
-    result = service.export_data(format="json", include_ai_logs=True)
+    result = service.export_data(export_format="json", include_ai_logs=True)
     assert result["rows_count"] > 0  # 含决策日志行

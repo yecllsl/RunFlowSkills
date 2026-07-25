@@ -4,6 +4,7 @@
 - E=59-74%, M=75-84%, T=88-100%, I=95-100%, R=100-110% VDOT
 - 配速 = VDOT 参考配速 / factor（factor 越大，配速越快）
 """
+
 from __future__ import annotations
 
 from typing import Literal

@@ -9,10 +9,11 @@
 - 就绪状态综合 HRV + TSB + RPE，单一指标不可决策
 - 24h 内高强度训练必须考虑
 """
+
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Literal, Optional, cast
+from datetime import UTC, datetime, timedelta
+from typing import Literal, cast
 
 from run_flow_skills_mcp.calculators.hrv import (
     calc_hrv_baseline,
@@ -30,23 +31,17 @@ DecisionType = Literal["coach", "plan_adjust", "review", "analysis"]
 class CoachService:
     """AI 教练编排服务."""
 
-    def __init__(
-        self, parquet_store: ParquetStore, json_store: JsonStore
-    ) -> None:
+    def __init__(self, parquet_store: ParquetStore, json_store: JsonStore) -> None:
         self.parquet_store = parquet_store
         self.json_store = json_store
 
-    def read_body_signals(self, date: Optional[str] = None) -> dict:
+    def read_body_signals(self, date: str | None = None) -> dict:
         """读取身体信号 + 计算就绪状态.
 
         spec 6.2: 内部同时读取 BodySignal（HRV/RPE）和 TrainingLoad（TSB），
         综合计算 readiness_level（HRV 偏离 + TSB + RPE，单一指标不可决策）。
         """
-        target_date = (
-            datetime.strptime(date, "%Y-%m-%d")
-            if date
-            else datetime.now(timezone.utc)
-        )
+        target_date = datetime.strptime(date, "%Y-%m-%d") if date else datetime.now(UTC)
         date_str = target_date.strftime("%Y-%m-%d")
 
         # 取近 7 天身体信号
@@ -114,9 +109,9 @@ class CoachService:
 
     def compute_readiness_level(
         self,
-        hrv_deviation: Optional[float],
-        tsb: Optional[float],
-        rpe: Optional[int],
+        hrv_deviation: float | None,
+        tsb: float | None,
+        rpe: int | None,
     ) -> ReadinessLevel:
         """综合就绪状态评估（HRV + TSB + RPE，coaching-rules.md 第 3 条）.
 
@@ -154,7 +149,7 @@ class CoachService:
             return "yellow"
         return "green"
 
-    def get_decision_trace(self, decision_id: str) -> Optional[dict]:
+    def get_decision_trace(self, decision_id: str) -> dict | None:
         """查询决策溯源链."""
         all_decisions = self.json_store.query_decisions()
         for d in all_decisions:
@@ -180,13 +175,13 @@ class CoachService:
         recommendation: str,
         confidence: float,
         trace_chain: list[str],
-        related_session_ids: Optional[list[str]] = None,
+        related_session_ids: list[str] | None = None,
     ) -> dict:
         """保存决策记录."""
         decision_id = self._next_decision_id()
         decision = DecisionLog(
             decision_id=decision_id,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             decision_type=cast(DecisionType, decision_type),
             inputs=inputs,
             reasoning=reasoning,
@@ -198,22 +193,18 @@ class CoachService:
         self.json_store.append_decision(decision)
         return {"decision_id": decision_id, "saved": True}
 
-    def _detect_recent_high_intensity(self, target_date: datetime) -> Optional[dict]:
+    def _detect_recent_high_intensity(self, target_date: datetime) -> dict | None:
         """检测 24h 内高强度训练（coaching-rules.md 第 6 条）."""
         # 取目标日期前 24 小时的 sessions
         start = target_date - timedelta(days=1)
         start_str = start.strftime("%Y-%m-%d")
         end_str = target_date.strftime("%Y-%m-%d")
-        sessions = self.parquet_store.query_sessions(
-            date_from=start_str, date_to=end_str
-        )
+        sessions = self.parquet_store.query_sessions(date_from=start_str, date_to=end_str)
         if not sessions:
             return None
 
         # 查询 metrics 判断是否高强度
-        metrics = self.parquet_store.query_metrics(
-            [s.session_id for s in sessions]
-        )
+        metrics = self.parquet_store.query_metrics([s.session_id for s in sessions])
         metrics_map = {m.session_id: m for m in metrics}
 
         high_intensity_zones = {"T", "I", "R"}
@@ -230,7 +221,7 @@ class CoachService:
 
     def _next_decision_id(self) -> str:
         """生成下一个 decision_id：dec_YYYYMMDD_NNN."""
-        date_str = datetime.now(timezone.utc).strftime("%Y%m%d")
+        date_str = datetime.now(UTC).strftime("%Y%m%d")
         existing = self.json_store.query_decisions()
         same_day = [d for d in existing if d.decision_id.startswith(f"dec_{date_str}")]
         return f"dec_{date_str}_{len(same_day) + 1:03d}"

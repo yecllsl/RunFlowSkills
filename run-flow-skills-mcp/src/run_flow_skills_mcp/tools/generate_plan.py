@@ -2,10 +2,10 @@
 
 薄包装：调 PlanService.generate_plan → service 已填充 plan_prompt → 重命名为 prompt 返回。
 """
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from pydantic import ValidationError
 
@@ -20,7 +20,8 @@ _DEGRADED_PROMPT = """训练计划生成失败。
 ## 你的任务
 1. 用简洁中文反馈失败原因
 2. 引导用户使用正确参数（goal_type: 5k/10k/half_marathon/full_marathon；goal_time: HH:MM:SS）
-3. 给出一个参数示例：goal_type=5k, goal_time=00:25:00, race_date=2026-10-19, weeks=8, current_vdot=40
+3. 给出一个参数示例：goal_type=5k, goal_time=00:25:00,
+   race_date=2026-10-19, weeks=8, current_vdot=40
 """
 
 
@@ -30,7 +31,7 @@ def generate_plan(
     race_date: str,
     weeks: int,
     current_vdot: float,
-    _data_dir: Optional[Path] = None,
+    _data_dir: Path | None = None,
 ) -> dict:
     """生成周期化训练计划.
 

@@ -1,10 +1,11 @@
 """JSON 存储引擎 - Load/BodySignal/DecisionLog/Plan/UserConfig（spec 5.1）."""
+
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Optional, TypeVar
+from typing import TypeVar
 
 from pydantic import BaseModel
 
@@ -19,7 +20,7 @@ from run_flow_skills_mcp.models import (
 T = TypeVar("T", bound=BaseModel)
 
 
-def _load_json_list(path: Path, model_cls: type[T]) -> list[T]:
+def _load_json_list[T: BaseModel](path: Path, model_cls: type[T]) -> list[T]:
     """从 JSON 文件加载 list[model]."""
     if not path.exists():
         return []
@@ -65,7 +66,7 @@ class JsonStore:
         _save_json_list(path, existing)
 
     def query_load(
-        self, date_from: Optional[str] = None, date_to: Optional[str] = None
+        self, date_from: str | None = None, date_to: str | None = None
     ) -> list[TrainingLoad]:
         path = self.load_dir / "training_load.json"
         loads = _load_json_list(path, TrainingLoad)
@@ -105,7 +106,7 @@ class JsonStore:
         _save_json_list(path, existing)
 
     def query_decisions(
-        self, date_from: Optional[str] = None, date_to: Optional[str] = None
+        self, date_from: str | None = None, date_to: str | None = None
     ) -> list[DecisionLog]:
         results: list[DecisionLog] = []
         for path in sorted(self.decisions_dir.glob("decisions_*.json")):
@@ -132,7 +133,7 @@ class JsonStore:
                 default=str,
             )
 
-    def load_plan(self, plan_id: str) -> Optional[TrainingPlan]:
+    def load_plan(self, plan_id: str) -> TrainingPlan | None:
         path = self.plans_dir / f"{plan_id}.json"
         if not path.exists():
             return None
@@ -165,7 +166,7 @@ class JsonStore:
         merged_data = existing.model_dump(exclude_none=True)
         new_data = config.model_dump(exclude_none=True)
         merged_data.update(new_data)
-        merged_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+        merged_data["updated_at"] = datetime.now(UTC).isoformat()
 
         path = self.data_dir / "config.json"
         with path.open("w", encoding="utf-8") as f:

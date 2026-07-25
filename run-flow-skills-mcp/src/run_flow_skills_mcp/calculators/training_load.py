@@ -1,4 +1,5 @@
 """训练负荷计算器 - TSS/CTL/ATL/TSB（spec 8.1.2, 8.1.3, 8.1.7）."""
+
 from __future__ import annotations
 
 from run_flow_skills_mcp.constants import ATL_WINDOW_DAYS, CTL_WINDOW_DAYS
@@ -62,9 +63,7 @@ def calc_tsb(ctl: float, atl: float) -> float:
     return ctl - atl
 
 
-def calc_intensity_factor(
-    avg_pace_s_per_km: float, threshold_pace_s_per_km: float
-) -> float:
+def calc_intensity_factor(avg_pace_s_per_km: float, threshold_pace_s_per_km: float) -> float:
     """计算 IF = threshold_pace / actual_pace.
 
     配速越快（秒数越小），IF 越高；实际配速 = 阈值配速时 IF=1.0。

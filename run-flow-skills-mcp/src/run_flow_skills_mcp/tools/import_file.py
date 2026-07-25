@@ -3,10 +3,10 @@
 薄包装：参数校验 → 调 ImportService.import_file → 附 prompt。
 Tool 不调 LLM，由宿主 AI 用 prompt 调 LLM 生成自然语言反馈。
 """
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from run_flow_skills_mcp.tools._deps import get_services, reset_services_cache
 
@@ -29,8 +29,8 @@ _IMPORT_FILE_PROMPT = """用户已导入训练文件：{file_path}。
 def import_file(
     file_path: str,
     force: bool = False,
-    source: Optional[str] = None,
-    _data_dir: Optional[Path] = None,
+    source: str | None = None,
+    _data_dir: Path | None = None,
 ) -> dict:
     """导入训练文件（FIT/TCX/GPX）.
 
@@ -60,9 +60,7 @@ def import_file(
         reset_services_cache()
 
     services = get_services(_data_dir)
-    result = services.import_service.import_file(
-        Path(file_path), force=force, source=source
-    )
+    result = services.import_service.import_file(Path(file_path), force=force, source=source)
 
     # 附 prompt（根据结果状态填充）
     if result.get("imported"):

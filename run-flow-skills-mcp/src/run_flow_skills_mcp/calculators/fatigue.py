@@ -8,12 +8,13 @@
 与 test_fatigue_partial_data_returns_moderate 的 -8% 期望不一致。
 此处修正权重与阈值以满足验收测试（测试为需求验收标准，不可改）。
 """
+
 from __future__ import annotations
 
-from typing import Literal, Optional
+from typing import Literal
 
 
-def _hrv_contribution(deviation_pct: Optional[float]) -> tuple[float, bool]:
+def _hrv_contribution(deviation_pct: float | None) -> tuple[float, bool]:
     """HRV 偏离贡献分（负偏离越大，分越高）.
 
     Returns:
@@ -31,7 +32,7 @@ def _hrv_contribution(deviation_pct: Optional[float]) -> tuple[float, bool]:
     return score, True
 
 
-def _tsb_contribution(tsb: Optional[float]) -> tuple[float, bool]:
+def _tsb_contribution(tsb: float | None) -> tuple[float, bool]:
     """TSB 贡献分（负值越大，分越高）."""
     if tsb is None:
         return 0.0, False
@@ -41,7 +42,7 @@ def _tsb_contribution(tsb: Optional[float]) -> tuple[float, bool]:
     return min(40.0, abs(tsb) * 2.0), True
 
 
-def _rpe_contribution(rpe_trend: Optional[list[int]]) -> tuple[float, bool]:
+def _rpe_contribution(rpe_trend: list[int] | None) -> tuple[float, bool]:
     """RPE 趋势贡献分（持续上升或高位 → 高分）."""
     if not rpe_trend or len(rpe_trend) < 2:
         return 0.0, False
@@ -53,9 +54,9 @@ def _rpe_contribution(rpe_trend: Optional[list[int]]) -> tuple[float, bool]:
 
 
 def calc_fatigue_score(
-    hrv_deviation_pct: Optional[float],
-    tsb: Optional[float],
-    rpe_trend: Optional[list[int]],
+    hrv_deviation_pct: float | None,
+    tsb: float | None,
+    rpe_trend: list[int] | None,
 ) -> tuple[float, Literal["low", "moderate", "high"], list[str]]:
     """计算疲劳度综合分数.
 
@@ -70,9 +71,7 @@ def calc_fatigue_score(
         - factors: 主要风险因子列表
     """
     # 判断是否有任何数据被提供（区别于"数据正常"与"数据缺失"）
-    data_provided = (
-        hrv_deviation_pct is not None or tsb is not None or rpe_trend is not None
-    )
+    data_provided = hrv_deviation_pct is not None or tsb is not None or rpe_trend is not None
     # 全部数据缺失 → 默认低风险但标注 insufficient_data
     if not data_provided:
         return 0.0, "low", ["insufficient_data"]

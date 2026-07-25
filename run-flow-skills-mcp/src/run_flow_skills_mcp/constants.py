@@ -3,6 +3,7 @@
 所有 # DEFAULT 标记的常量可被 data/config.json (UserConfig) 覆盖。
 计算器读取顺序：data/config.json → 本文件默认值。
 """
+
 from __future__ import annotations
 
 from pathlib import Path

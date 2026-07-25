@@ -7,10 +7,11 @@
 
 漏练自适应（spec 7.3）：后续负荷重新分配，负荷守恒不追加。
 """
+
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Literal, Optional, cast
+from datetime import UTC, datetime, timedelta
+from typing import Literal, cast
 
 from run_flow_skills_mcp.calculators.pace_zones import calc_pace_zones
 from run_flow_skills_mcp.models import (
@@ -41,20 +42,23 @@ def _estimate_target_vdot(goal_type: str, goal_time: str) -> float:
         return table[goal_time]
     # 取最接近的目标时间，按比例调整
     if table:
+
         def _total_seconds(t: str) -> int:
             parts = t.split(":")
             return sum(int(x) * (60 ** (len(parts) - 1 - i)) for i, x in enumerate(parts))
 
-        closest = min(table.keys(), key=lambda t: abs(_total_seconds(t) - _total_seconds(goal_time)))
+        closest = min(
+            table.keys(), key=lambda t: abs(_total_seconds(t) - _total_seconds(goal_time))
+        )
         return table[closest] * 1.05
     return 45.0  # 默认值
 
 
 # 周期化阶段分配比例（base/build/peak/taper）
 _PHASE_RATIOS: dict[str, float] = {
-    "base": 0.34,   # 约 1/3
+    "base": 0.34,  # 约 1/3
     "build": 0.33,  # 约 1/3
-    "peak": 0.22,   # 约 1/5
+    "peak": 0.22,  # 约 1/5
     "taper": 0.11,  # 约 1/10
 }
 
@@ -62,9 +66,7 @@ _PHASE_RATIOS: dict[str, float] = {
 class PlanService:
     """训练计划编排服务."""
 
-    def __init__(
-        self, parquet_store: ParquetStore, json_store: JsonStore
-    ) -> None:
+    def __init__(self, parquet_store: ParquetStore, json_store: JsonStore) -> None:
         self.parquet_store = parquet_store
         self.json_store = json_store
 
@@ -94,7 +96,7 @@ class PlanService:
             current_vdot=current_vdot,
             target_vdot=target_vdot,
             phases=phases,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
             status="draft",
         )
         self.json_store.save_plan(plan)
@@ -120,7 +122,7 @@ class PlanService:
             "plan_prompt": plan_prompt,
         }
 
-    def query_plan(self, plan_id: Optional[str] = None) -> dict:
+    def query_plan(self, plan_id: str | None = None) -> dict:
         """查询计划（plan_id=None 返回最新计划）+ 计算忠实度."""
         if plan_id:
             plan = self.json_store.load_plan(plan_id)
@@ -141,11 +143,7 @@ class PlanService:
         统计计划期内每周是否有对应训练日。
         """
         # 统计计划内总课表数
-        planned_sessions = sum(
-            len(week.sessions)
-            for phase in plan.phases
-            for week in phase.weeks
-        )
+        planned_sessions = sum(len(week.sessions) for phase in plan.phases for week in phase.weeks)
 
         # 查询计划期内实际训练数
         race_date = datetime.strptime(plan.race_date, "%Y-%m-%d")
@@ -165,9 +163,7 @@ class PlanService:
             "missing_sessions": max(0, planned_sessions - completed),
         }
 
-    def _build_phases(
-        self, weeks: int, pace_zones: dict, vdot: float
-    ) -> list[PlanPhase]:
+    def _build_phases(self, weeks: int, pace_zones: dict, vdot: float) -> list[PlanPhase]:
         """构建周期化阶段（base/build/peak/taper）."""
         # 分配每周数（向下取整，剩余加到 base）
         base_weeks = max(1, int(weeks * _PHASE_RATIOS["base"]))
@@ -191,13 +187,14 @@ class PlanService:
                 weeks_list.append(self._build_week(week_idx, phase_type, pace_zones))
                 week_idx += 1
             phases.append(
-                PlanPhase(phase_type=cast(Literal["base", "build", "peak", "taper"], phase_type), weeks=weeks_list)
+                PlanPhase(
+                    phase_type=cast(Literal["base", "build", "peak", "taper"], phase_type),
+                    weeks=weeks_list,
+                )
             )
         return phases
 
-    def _build_week(
-        self, week_index: int, phase_type: str, pace_zones: dict
-    ) -> PlanWeek:
+    def _build_week(self, week_index: int, phase_type: str, pace_zones: dict) -> PlanWeek:
         """构建单周课表（简化：每 phase 固定模板）."""
         # ponytail: MVP 用固定模板，v0.2.0 可用 ML 生成
         e_lo, e_hi = pace_zones.get("E", (300, 400))
@@ -206,51 +203,66 @@ class PlanService:
 
         if phase_type == "base":
             sessions = [
-                PlanSession(day=0, pace_zone="E", duration_s=3600,
-                            pace_range_s_per_km=(e_lo, e_hi)),
-                PlanSession(day=2, pace_zone="E", duration_s=2400,
-                            pace_range_s_per_km=(e_lo, e_hi)),
-                PlanSession(day=4, pace_zone="M", duration_s=3000,
-                            pace_range_s_per_km=(m_lo, m_hi)),
-                PlanSession(day=6, pace_zone="E", duration_s=5400,
-                            pace_range_s_per_km=(e_lo, e_hi)),
+                PlanSession(
+                    day=0, pace_zone="E", duration_s=3600, pace_range_s_per_km=(e_lo, e_hi)
+                ),
+                PlanSession(
+                    day=2, pace_zone="E", duration_s=2400, pace_range_s_per_km=(e_lo, e_hi)
+                ),
+                PlanSession(
+                    day=4, pace_zone="M", duration_s=3000, pace_range_s_per_km=(m_lo, m_hi)
+                ),
+                PlanSession(
+                    day=6, pace_zone="E", duration_s=5400, pace_range_s_per_km=(e_lo, e_hi)
+                ),
             ]
         elif phase_type == "build":
             sessions = [
-                PlanSession(day=0, pace_zone="E", duration_s=3600,
-                            pace_range_s_per_km=(e_lo, e_hi)),
-                PlanSession(day=2, pace_zone="T", duration_s=2400,
-                            pace_range_s_per_km=(t_lo, t_hi)),
-                PlanSession(day=4, pace_zone="M", duration_s=3600,
-                            pace_range_s_per_km=(m_lo, m_hi)),
-                PlanSession(day=6, pace_zone="E", duration_s=5400,
-                            pace_range_s_per_km=(e_lo, e_hi)),
+                PlanSession(
+                    day=0, pace_zone="E", duration_s=3600, pace_range_s_per_km=(e_lo, e_hi)
+                ),
+                PlanSession(
+                    day=2, pace_zone="T", duration_s=2400, pace_range_s_per_km=(t_lo, t_hi)
+                ),
+                PlanSession(
+                    day=4, pace_zone="M", duration_s=3600, pace_range_s_per_km=(m_lo, m_hi)
+                ),
+                PlanSession(
+                    day=6, pace_zone="E", duration_s=5400, pace_range_s_per_km=(e_lo, e_hi)
+                ),
             ]
         elif phase_type == "peak":
             sessions = [
-                PlanSession(day=0, pace_zone="E", duration_s=3000,
-                            pace_range_s_per_km=(e_lo, e_hi)),
-                PlanSession(day=2, pace_zone="T", duration_s=3000,
-                            pace_range_s_per_km=(t_lo, t_hi)),
-                PlanSession(day=4, pace_zone="M", duration_s=4200,
-                            pace_range_s_per_km=(m_lo, m_hi)),
-                PlanSession(day=6, pace_zone="E", duration_s=4800,
-                            pace_range_s_per_km=(e_lo, e_hi)),
+                PlanSession(
+                    day=0, pace_zone="E", duration_s=3000, pace_range_s_per_km=(e_lo, e_hi)
+                ),
+                PlanSession(
+                    day=2, pace_zone="T", duration_s=3000, pace_range_s_per_km=(t_lo, t_hi)
+                ),
+                PlanSession(
+                    day=4, pace_zone="M", duration_s=4200, pace_range_s_per_km=(m_lo, m_hi)
+                ),
+                PlanSession(
+                    day=6, pace_zone="E", duration_s=4800, pace_range_s_per_km=(e_lo, e_hi)
+                ),
             ]
         else:  # taper
             sessions = [
-                PlanSession(day=0, pace_zone="E", duration_s=2400,
-                            pace_range_s_per_km=(e_lo, e_hi)),
-                PlanSession(day=2, pace_zone="E", duration_s=1800,
-                            pace_range_s_per_km=(e_lo, e_hi)),
-                PlanSession(day=4, pace_zone="M", duration_s=1800,
-                            pace_range_s_per_km=(m_lo, m_hi)),
+                PlanSession(
+                    day=0, pace_zone="E", duration_s=2400, pace_range_s_per_km=(e_lo, e_hi)
+                ),
+                PlanSession(
+                    day=2, pace_zone="E", duration_s=1800, pace_range_s_per_km=(e_lo, e_hi)
+                ),
+                PlanSession(
+                    day=4, pace_zone="M", duration_s=1800, pace_range_s_per_km=(m_lo, m_hi)
+                ),
             ]
         return PlanWeek(week_index=week_index, sessions=sessions)
 
     def _next_plan_id(self) -> str:
         """生成下一个 plan_id：plan_YYYYMMDD_NNN."""
-        date_str = datetime.now(timezone.utc).strftime("%Y%m%d")
+        date_str = datetime.now(UTC).strftime("%Y%m%d")
         existing = self.json_store.list_plans()
         same_day = [p for p in existing if p.plan_id.startswith(f"plan_{date_str}")]
         return f"plan_{date_str}_{len(same_day) + 1:03d}"
@@ -261,7 +273,5 @@ class PlanService:
         for phase in phases:
             n_weeks = len(phase.weeks)
             total_sessions = sum(len(w.sessions) for w in phase.weeks)
-            lines.append(
-                f"- {phase.phase_type}: {n_weeks} 周, {total_sessions} 次课表"
-            )
+            lines.append(f"- {phase.phase_type}: {n_weeks} 周, {total_sessions} 次课表")
         return "\n".join(lines)

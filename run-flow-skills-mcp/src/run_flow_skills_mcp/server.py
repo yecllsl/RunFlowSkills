@@ -5,17 +5,22 @@ Tool 函数体使用懒导入（函数体内 import），确保 server.py 本身
 
 Tool 不调 LLM（spec 10.2），只返回 {prompt, ...data}，由宿主 AI 用 prompt 调 LLM。
 """
+
 from fastmcp import FastMCP
 
 mcp = FastMCP(
     name="run-flow-skills-mcp",
-    instructions="跑步数据管理 + AI 教练 MCP Server，提供 14 个 tools：导入/查询/分析/计划/复盘/教练/统计/导出/决策溯源",
+    instructions=(
+        "跑步数据管理 + AI 教练 MCP Server，"
+        "提供 14 个 tools：导入/查询/分析/计划/复盘/教练/统计/导出/决策溯源"
+    ),
 )
 
 
 # ──────────────────────────────────────────
 # 导入类（2 个）
 # ──────────────────────────────────────────
+
 
 @mcp.tool()
 def import_file(file_path: str, force: bool = False, source: str = "") -> dict:
@@ -30,6 +35,7 @@ def import_file(file_path: str, force: bool = False, source: str = "") -> dict:
         {prompt, imported, session_id?, metrics_summary?, skipped?, reason?, error?}
     """
     from run_flow_skills_mcp.tools.import_file import import_file as _impl
+
     return _impl(file_path, force=force, source=source or None)
 
 
@@ -45,12 +51,14 @@ def import_manual(manual_data: dict, force: bool = False) -> dict:
         {prompt, imported, session_id?, metrics_summary?, error?}
     """
     from run_flow_skills_mcp.tools.import_manual import import_manual as _impl
+
     return _impl(manual_data, force=force)
 
 
 # ──────────────────────────────────────────
 # 查询分析类（4 个）
 # ──────────────────────────────────────────
+
 
 @mcp.tool()
 def query_sessions(
@@ -71,6 +79,7 @@ def query_sessions(
         {prompt, sessions, total}
     """
     from run_flow_skills_mcp.tools.query_sessions import query_sessions as _impl
+
     return _impl(
         date_from=date_from or None,
         date_to=date_to or None,
@@ -91,6 +100,7 @@ def calc_metrics(date_from: str, date_to: str) -> dict:
         {prompt, vdot_trend, tss_sum, ctl, atl, tsb, hr_zones_dist}
     """
     from run_flow_skills_mcp.tools.calc_metrics import calc_metrics as _impl
+
     return _impl(date_from, date_to)
 
 
@@ -106,6 +116,7 @@ def get_trends(days: int = 30, metric: str = "vdot") -> dict:
         {prompt, series, change_pct, baseline}
     """
     from run_flow_skills_mcp.tools.get_trends import get_trends as _impl
+
     return _impl(days=days, metric=metric)
 
 
@@ -120,12 +131,14 @@ def analyze_fatigue(days: int = 7) -> dict:
         {prompt, fatigue_score, risk_level, main_factors, hrv_deviation, tsb}
     """
     from run_flow_skills_mcp.tools.analyze_fatigue import analyze_fatigue as _impl
+
     return _impl(days=days)
 
 
 # ──────────────────────────────────────────
 # 计划类（2 个）
 # ──────────────────────────────────────────
+
 
 @mcp.tool()
 def generate_plan(
@@ -148,6 +161,7 @@ def generate_plan(
         {prompt, plan_id, phases, pace_zones, target_vdot, vdot_gap}
     """
     from run_flow_skills_mcp.tools.generate_plan import generate_plan as _impl
+
     return _impl(
         goal_type=goal_type,
         goal_time=goal_time,
@@ -168,12 +182,14 @@ def query_plan(plan_id: str = "") -> dict:
         {prompt, plan, fidelity}
     """
     from run_flow_skills_mcp.tools.query_plan import query_plan as _impl
+
     return _impl(plan_id=plan_id or None)
 
 
 # ──────────────────────────────────────────
 # 复盘教练类（3 个）
 # ──────────────────────────────────────────
+
 
 @mcp.tool()
 def get_period_summary(period: str = "week", date_ref: str = "") -> dict:
@@ -184,9 +200,11 @@ def get_period_summary(period: str = "week", date_ref: str = "") -> dict:
         date_ref: 参考日期 YYYY-MM-DD（空字符串=今天）
 
     Returns:
-        {prompt, total_distance, total_tss, avg_vdot, load_change, sessions_count, vdot_trend, hrv_trend}
+        {prompt, total_distance, total_tss, avg_vdot,
+         load_change, sessions_count, vdot_trend, hrv_trend}
     """
     from run_flow_skills_mcp.tools.get_period_summary import get_period_summary as _impl
+
     return _impl(period=period, date_ref=date_ref or None)
 
 
@@ -198,9 +216,11 @@ def read_body_signals(date: str = "") -> dict:
         date: 日期 YYYY-MM-DD（空字符串=今天）
 
     Returns:
-        {prompt, hrv, resting_hr, sleep, rpe, baseline, deviation_pct, readiness_level, yesterday_session, recent_high_intensity}
+        {prompt, hrv, resting_hr, sleep, rpe, baseline,
+         deviation_pct, readiness_level, yesterday_session, recent_high_intensity}
     """
     from run_flow_skills_mcp.tools.read_body_signals import read_body_signals as _impl
+
     return _impl(date=date or None)
 
 
@@ -229,6 +249,7 @@ def save_decision_log(
         {prompt, decision_id, saved}
     """
     from run_flow_skills_mcp.tools.save_decision_log import save_decision_log as _impl
+
     return _impl(
         decision_type=decision_type,
         inputs=inputs,
@@ -244,6 +265,7 @@ def save_decision_log(
 # 统计导出类（3 个）
 # ──────────────────────────────────────────
 
+
 @mcp.tool()
 def get_decision_trace(decision_id: str) -> dict:
     """查询决策溯源链.
@@ -255,6 +277,7 @@ def get_decision_trace(decision_id: str) -> dict:
         {prompt, decision_id, found, trace?}
     """
     from run_flow_skills_mcp.tools.get_decision_trace import get_decision_trace as _impl
+
     return _impl(decision_id=decision_id)
 
 
@@ -275,6 +298,7 @@ def get_statistics(
         {prompt, groups, dimension}
     """
     from run_flow_skills_mcp.tools.get_statistics import get_statistics as _impl
+
     return _impl(
         dimension=dimension,
         date_from=date_from or None,
@@ -284,14 +308,14 @@ def get_statistics(
 
 @mcp.tool()
 def export_data(
-    format: str,
+    export_format: str,
     filters: dict = None,
     include_ai_logs: bool = False,
 ) -> dict:
     """导出训练数据.
 
     Args:
-        format: 导出格式（csv/json/parquet/md）
+        export_format: 导出格式（csv/json/parquet/md）
         filters: 过滤条件 {date_from?, date_to?, source?}（可选）
         include_ai_logs: 是否包含决策日志（默认 False）
 
@@ -299,7 +323,8 @@ def export_data(
         {prompt, file_path, rows_count, format} 或 {prompt, error}
     """
     from run_flow_skills_mcp.tools.export_data import export_data as _impl
-    return _impl(format=format, filters=filters, include_ai_logs=include_ai_logs)
+
+    return _impl(format=export_format, filters=filters, include_ai_logs=include_ai_logs)
 
 
 def main() -> None:

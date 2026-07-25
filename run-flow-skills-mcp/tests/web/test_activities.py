@@ -1,4 +1,5 @@
 """activities 路由测试."""
+
 from pathlib import Path
 
 
@@ -20,8 +21,8 @@ def test_activities_api_empty(client):
 
 def test_activities_partial_with_data(client, tmp_data_dir: Path):
     """有数据时列表显示活动."""
-    from tests.web.conftest import seed_gpx_file
     from run_flow_skills_mcp.web.deps import get_services
+    from tests.web.conftest import seed_gpx_file
 
     svc = get_services(tmp_data_dir)
     gpx = seed_gpx_file(tmp_data_dir / "uploads" / "test.gpx", date="2026-07-20")
@@ -34,8 +35,8 @@ def test_activities_partial_with_data(client, tmp_data_dir: Path):
 
 def test_activities_api_with_data(client, tmp_data_dir: Path):
     """有数据时 API 返回 session 列表."""
-    from tests.web.conftest import seed_gpx_file
     from run_flow_skills_mcp.web.deps import get_services
+    from tests.web.conftest import seed_gpx_file
 
     svc = get_services(tmp_data_dir)
     gpx = seed_gpx_file(tmp_data_dir / "uploads" / "test.gpx", date="2026-07-20")
@@ -54,8 +55,8 @@ def test_activities_api_with_data(client, tmp_data_dir: Path):
 
 def test_activity_detail_partial(client, tmp_data_dir: Path):
     """详情片段返回 session 详情."""
-    from tests.web.conftest import seed_gpx_file
     from run_flow_skills_mcp.web.deps import get_services
+    from tests.web.conftest import seed_gpx_file
 
     svc = get_services(tmp_data_dir)
     gpx = seed_gpx_file(tmp_data_dir / "uploads" / "test.gpx", date="2026-07-20")

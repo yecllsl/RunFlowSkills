@@ -2,11 +2,11 @@
 
 薄包装：调 AnalysisService.calc_metrics → 用 ANALYZE_PROMPT 填充 → 返回。
 """
+
 from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from run_flow_skills_mcp.prompts.analyze_prompt import ANALYZE_PROMPT
 from run_flow_skills_mcp.tools._deps import get_services, reset_services_cache
@@ -15,7 +15,7 @@ from run_flow_skills_mcp.tools._deps import get_services, reset_services_cache
 def calc_metrics(
     date_from: str,
     date_to: str,
-    _data_dir: Optional[Path] = None,
+    _data_dir: Path | None = None,
 ) -> dict:
     """聚合区间训练指标.
 
@@ -35,9 +35,9 @@ def calc_metrics(
 
     # 心率区间分布格式化（zone:pct%, ...）
     hr_zones_dist = data.get("hr_zones_dist", {})
-    hr_zones_str = ", ".join(
-        f"{zone}:{pct * 100:.0f}%" for zone, pct in hr_zones_dist.items()
-    ) or "无数据"
+    hr_zones_str = (
+        ", ".join(f"{zone}:{pct * 100:.0f}%" for zone, pct in hr_zones_dist.items()) or "无数据"
+    )
 
     # VDOT 趋势最新值
     vdot_trend = data.get("vdot_trend", [])
@@ -46,8 +46,7 @@ def calc_metrics(
     # 计算天数（用于 prompt 上下文）
     try:
         days = (
-            datetime.strptime(date_to, "%Y-%m-%d")
-            - datetime.strptime(date_from, "%Y-%m-%d")
+            datetime.strptime(date_to, "%Y-%m-%d") - datetime.strptime(date_from, "%Y-%m-%d")
         ).days
     except (ValueError, TypeError):
         days = 30

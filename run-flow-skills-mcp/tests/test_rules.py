@@ -1,4 +1,5 @@
 """Rules 规则文件测试."""
+
 from pathlib import Path
 
 import pytest

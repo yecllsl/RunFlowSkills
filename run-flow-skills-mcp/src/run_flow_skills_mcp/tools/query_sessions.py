@@ -2,10 +2,10 @@
 
 薄包装：参数校验 → 查 Parquet → 附 prompt。
 """
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from run_flow_skills_mcp.tools._deps import get_services, reset_services_cache
 
@@ -27,11 +27,11 @@ _QUERY_SESSIONS_PROMPT = """已查询到用户训练记录。
 
 
 def query_sessions(
-    date_from: Optional[str] = None,
-    date_to: Optional[str] = None,
-    source: Optional[str] = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    source: str | None = None,
     limit: int = 50,
-    _data_dir: Optional[Path] = None,
+    _data_dir: Path | None = None,
 ) -> dict:
     """查询训练记录列表.
 
@@ -63,16 +63,23 @@ def query_sessions(
             "activity_date": s.activity_date.strftime("%Y-%m-%d"),
             "distance_km": round(s.distance_m / 1000, 2),
             "duration_min": round(s.duration_s / 60, 1),
-            "avg_pace_min_per_km": f"{int(s.avg_pace_s_per_km // 60)}'{int(s.avg_pace_s_per_km % 60):02d}\"",
+            "avg_pace_min_per_km": (
+                f"{int(s.avg_pace_s_per_km // 60)}"
+                f"'{int(s.avg_pace_s_per_km % 60):02d}\""
+            ),
             "source": s.source,
         }
         for s in sessions
     ]
 
-    sessions_brief = "\n".join(
-        f"- {s['activity_date']} | {s['distance_km']}km | {s['duration_min']}min | {s['avg_pace_min_per_km']}/km"
-        for s in session_list
-    ) or "（无记录）"
+    sessions_brief = (
+        "\n".join(
+            f"- {s['activity_date']} | {s['distance_km']}km"
+            f" | {s['duration_min']}min | {s['avg_pace_min_per_km']}/km"
+            for s in session_list
+        )
+        or "（无记录）"
+    )
 
     prompt = _QUERY_SESSIONS_PROMPT.format(
         date_from=date_from or "全部",

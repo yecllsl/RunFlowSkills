@@ -2,9 +2,10 @@
 
 手动录入和配置更新的 Pydantic 请求体，复用 models.UserConfig 的字段约束。
 """
+
 from __future__ import annotations
 
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -19,10 +20,10 @@ class ManualInputRequest(BaseModel):
     activity_date: str = Field(..., description="活动日期 ISO 格式，如 2026-07-20T06:00:00")
     distance_m: float = Field(..., gt=0, description="距离（米），>0")
     duration_s: int = Field(..., gt=0, description="时长（秒），>0")
-    avg_hr: Optional[int] = Field(None, ge=30, le=260, description="平均心率")
-    max_hr: Optional[int] = Field(None, ge=30, le=260, description="最大心率")
+    avg_hr: int | None = Field(None, ge=30, le=260, description="平均心率")
+    max_hr: int | None = Field(None, ge=30, le=260, description="最大心率")
     source: Literal["garmin", "coros", "apple", "suunto", "polar", "manual"] = "manual"
-    notes: Optional[str] = None
+    notes: str | None = None
 
 
 class ConfigUpdateRequest(BaseModel):
@@ -31,10 +32,10 @@ class ConfigUpdateRequest(BaseModel):
     所有字段可选，支持部分更新。字段约束与 models.UserConfig 一致。
     """
 
-    max_hr: Optional[int] = Field(None, ge=80, le=260)
-    lthr: Optional[int] = Field(None, ge=60, le=220)
-    resting_hr: Optional[int] = Field(None, ge=30, le=150)
-    age: Optional[int] = Field(None, ge=10, le=120)
-    weight_kg: Optional[float] = Field(None, gt=0, le=300)
-    gender: Optional[Literal["male", "female"]] = None
-    height_cm: Optional[float] = Field(None, gt=0, le=300)
+    max_hr: int | None = Field(None, ge=80, le=260)
+    lthr: int | None = Field(None, ge=60, le=220)
+    resting_hr: int | None = Field(None, ge=30, le=150)
+    age: int | None = Field(None, ge=10, le=120)
+    weight_kg: float | None = Field(None, gt=0, le=300)
+    gender: Literal["male", "female"] | None = None
+    height_cm: float | None = Field(None, gt=0, le=300)

@@ -1,23 +1,20 @@
 """HRV 计算器 - RMSSD/SDNN/pNN50 + 基线偏离（spec 8.1.8, FR-ANALYZE-04）."""
+
 from __future__ import annotations
 
 import math
-from typing import Optional
 
 
-def calc_rmssd(rr_intervals: list[float]) -> Optional[float]:
+def calc_rmssd(rr_intervals: list[float]) -> float | None:
     """计算 RMSSD（ms）= sqrt(mean(successive_diff²))."""
     if len(rr_intervals) < 2:
         return None
-    diffs = [
-        rr_intervals[i + 1] - rr_intervals[i]
-        for i in range(len(rr_intervals) - 1)
-    ]
+    diffs = [rr_intervals[i + 1] - rr_intervals[i] for i in range(len(rr_intervals) - 1)]
     mean_sq = sum(d * d for d in diffs) / len(diffs)
     return math.sqrt(mean_sq)
 
 
-def calc_sdnn(rr_intervals: list[float]) -> Optional[float]:
+def calc_sdnn(rr_intervals: list[float]) -> float | None:
     """计算 SDNN（ms）= std(RR_intervals)."""
     if not rr_intervals:
         return None
@@ -26,19 +23,16 @@ def calc_sdnn(rr_intervals: list[float]) -> Optional[float]:
     return math.sqrt(variance)
 
 
-def calc_pnn50(rr_intervals: list[float]) -> Optional[float]:
+def calc_pnn50(rr_intervals: list[float]) -> float | None:
     """计算 pNN50（%）= |diff|>50ms 的占比 × 100."""
     if len(rr_intervals) < 2:
         return None
-    diffs = [
-        abs(rr_intervals[i + 1] - rr_intervals[i])
-        for i in range(len(rr_intervals) - 1)
-    ]
+    diffs = [abs(rr_intervals[i + 1] - rr_intervals[i]) for i in range(len(rr_intervals) - 1)]
     count_gt_50 = sum(1 for d in diffs if d > 50.0)
     return count_gt_50 / len(diffs) * 100.0
 
 
-def calc_hrv_baseline(recent_hrv: list[float]) -> Optional[float]:
+def calc_hrv_baseline(recent_hrv: list[float]) -> float | None:
     """计算 HRV 基线（7 天滚动均值，spec 8.1.8）.
 
     Args:

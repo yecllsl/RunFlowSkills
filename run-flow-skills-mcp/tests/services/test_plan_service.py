@@ -1,4 +1,5 @@
 """plan_service 测试（spec FR-PLAN-01/02/03/04）."""
+
 from pathlib import Path
 
 import pytest
@@ -49,8 +50,11 @@ def test_generate_plan_full_marathon_12_weeks(service: PlanService):
 def test_generate_plan_includes_plan_prompt(service: PlanService):
     """生成计划必须附带 plan_prompt（spec 6.2）."""
     result = service.generate_plan(
-        goal_type="5k", goal_time="00:25:00",
-        race_date="2026-10-19", weeks=8, current_vdot=40.0,
+        goal_type="5k",
+        goal_time="00:25:00",
+        race_date="2026-10-19",
+        weeks=8,
+        current_vdot=40.0,
     )
     assert "plan_prompt" in result
     assert "current_vdot" in result["plan_prompt"] or "40" in result["plan_prompt"]
@@ -59,8 +63,11 @@ def test_generate_plan_includes_plan_prompt(service: PlanService):
 def test_generate_plan_saves_to_json(service: PlanService):
     """生成后自动保存到 plans/plan_*.json（spec 5.1）."""
     result = service.generate_plan(
-        goal_type="half_marathon", goal_time="01:59:59",
-        race_date="2026-10-19", weeks=12, current_vdot=42.0,
+        goal_type="half_marathon",
+        goal_time="01:59:59",
+        race_date="2026-10-19",
+        weeks=12,
+        current_vdot=42.0,
     )
     plan_id = result["plan_id"]
     loaded = service.json_store.load_plan(plan_id)
@@ -71,8 +78,11 @@ def test_generate_plan_saves_to_json(service: PlanService):
 def test_query_plan_returns_plan_and_fidelity(service: PlanService, import_service: ImportService):
     """query_plan 返回计划 + 可选 fidelity（spec FR-PLAN-04）."""
     gen = service.generate_plan(
-        goal_type="10k", goal_time="00:50:00",
-        race_date="2026-10-19", weeks=8, current_vdot=45.0,
+        goal_type="10k",
+        goal_time="00:50:00",
+        race_date="2026-10-19",
+        weeks=8,
+        current_vdot=45.0,
     )
     result = service.query_plan(gen["plan_id"])
     assert "plan" in result
@@ -82,8 +92,11 @@ def test_query_plan_returns_plan_and_fidelity(service: PlanService, import_servi
 def test_query_plan_active_returns_latest(service: PlanService):
     """query_plan(plan_id=None) 返回最新的 active 计划."""
     service.generate_plan(
-        goal_type="5k", goal_time="00:25:00",
-        race_date="2026-10-19", weeks=8, current_vdot=40.0,
+        goal_type="5k",
+        goal_time="00:25:00",
+        race_date="2026-10-19",
+        weeks=8,
+        current_vdot=40.0,
     )
     result = service.query_plan()
     assert "plan" in result
@@ -92,8 +105,11 @@ def test_query_plan_active_returns_latest(service: PlanService):
 def test_compute_fidelity_empty_actual(service: PlanService):
     """无实际训练时 fidelity=0."""
     gen = service.generate_plan(
-        goal_type="5k", goal_time="00:25:00",
-        race_date="2026-10-19", weeks=8, current_vdot=40.0,
+        goal_type="5k",
+        goal_time="00:25:00",
+        race_date="2026-10-19",
+        weeks=8,
+        current_vdot=40.0,
     )
     plan = service.json_store.load_plan(gen["plan_id"])
     fidelity = service.compute_fidelity(plan)

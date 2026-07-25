@@ -1,4 +1,5 @@
 """import_page 路由测试."""
+
 from pathlib import Path
 
 from tests.web.conftest import seed_gpx_file
@@ -80,6 +81,7 @@ def test_import_upload_force_overrides_duplicate(client, tmp_data_dir: Path):
 def test_import_upload_unsupported_extension_rejected(client):
     """不支持的文件类型被拒绝."""
     import io
+
     fake = io.BytesIO(b"fake content")
     resp = client.post(
         "/api/import/upload",
@@ -93,8 +95,10 @@ def test_import_upload_unsupported_extension_rejected(client):
 
 def test_import_upload_too_many_files_rejected(client):
     """超过 100 文件上限被拒绝."""
-    from run_flow_skills_mcp.constants import MAX_BATCH_UPLOAD_FILES
     import io
+
+    from run_flow_skills_mcp.constants import MAX_BATCH_UPLOAD_FILES
+
     files = []
     for i in range(MAX_BATCH_UPLOAD_FILES + 1):
         files.append(("files", (f"f{i}.gpx", io.BytesIO(b"<gpx></gpx>"), "application/xml")))

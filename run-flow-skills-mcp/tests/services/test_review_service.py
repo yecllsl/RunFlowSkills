@@ -1,4 +1,5 @@
 """review_service 测试（spec FR-REVIEW-01/02）."""
+
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -26,10 +27,14 @@ def import_service(tmp_data_dir: Path) -> ImportService:
 def _seed(import_service: ImportService, n: int):
     for i in range(n):
         date = (datetime(2026, 7, 25) - timedelta(days=n - i - 1)).strftime("%Y-%m-%dT06:00:00")
-        import_service.import_manual({
-            "activity_date": date, "distance_m": 10000.0,
-            "duration_s": 3000, "source": "manual",
-        })
+        import_service.import_manual(
+            {
+                "activity_date": date,
+                "distance_m": 10000.0,
+                "duration_s": 3000,
+                "source": "manual",
+            }
+        )
 
 
 def test_get_period_summary_week(service: ReviewService, import_service: ImportService):
@@ -37,7 +42,15 @@ def test_get_period_summary_week(service: ReviewService, import_service: ImportS
     _seed(import_service, 7)
     result = service.get_period_summary(period="week", date_ref="2026-07-25")
 
-    for key in ("total_distance", "total_tss", "avg_vdot", "load_change", "sessions_count", "vdot_trend", "hrv_trend"):
+    for key in (
+        "total_distance",
+        "total_tss",
+        "avg_vdot",
+        "load_change",
+        "sessions_count",
+        "vdot_trend",
+        "hrv_trend",
+    ):
         assert key in result
     assert result["sessions_count"] >= 1
 

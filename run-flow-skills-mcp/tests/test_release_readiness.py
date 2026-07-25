@@ -1,4 +1,5 @@
 """发布就绪测试：验证 v0.1.0 所有必要文件存在."""
+
 from pathlib import Path
 
 import pytest
@@ -13,17 +14,30 @@ class TestReleaseReadiness:
     def test_mcp_json_exists(self):
         assert (_PROJECT_ROOT / ".trae" / "mcp.json").exists()
 
-    @pytest.mark.parametrize("skill", [
-        "runflow-import", "runflow-analyze", "runflow-plan",
-        "runflow-review", "runflow-coach", "runflow-stats",
-    ])
+    @pytest.mark.parametrize(
+        "skill",
+        [
+            "runflow-import",
+            "runflow-analyze",
+            "runflow-plan",
+            "runflow-review",
+            "runflow-coach",
+            "runflow-stats",
+        ],
+    )
     def test_skill_exists(self, skill):
         assert (_PROJECT_ROOT / ".trae" / "skills" / skill / "SKILL.md").exists()
 
-    @pytest.mark.parametrize("rule", [
-        "calculation-rules.md", "analysis-rules.md", "coaching-rules.md",
-        "data-safety-rules.md", "interaction-rules.md",
-    ])
+    @pytest.mark.parametrize(
+        "rule",
+        [
+            "calculation-rules.md",
+            "analysis-rules.md",
+            "coaching-rules.md",
+            "data-safety-rules.md",
+            "interaction-rules.md",
+        ],
+    )
     def test_rule_exists(self, rule):
         assert (_PROJECT_ROOT / ".trae" / "rules" / rule).exists()
 
@@ -40,11 +54,20 @@ class TestReleaseReadiness:
 
     # ─────────── Web ───────────
     def test_web_app_exists(self):
-        path = _PROJECT_ROOT / "run-flow-skills-mcp" / "src" / "run_flow_skills_mcp" / "web" / "app.py"
+        path = (
+            _PROJECT_ROOT / "run-flow-skills-mcp" / "src" / "run_flow_skills_mcp" / "web" / "app.py"
+        )
         assert path.exists()
 
     def test_web_templates_exist(self):
-        tmpl_dir = _PROJECT_ROOT / "run-flow-skills-mcp" / "src" / "run_flow_skills_mcp" / "web" / "templates"
+        tmpl_dir = (
+            _PROJECT_ROOT
+            / "run-flow-skills-mcp"
+            / "src"
+            / "run_flow_skills_mcp"
+            / "web"
+            / "templates"
+        )
         assert (tmpl_dir / "base.html").exists()
         assert (tmpl_dir / "partials" / "dashboard.html").exists()
         assert (tmpl_dir / "partials" / "import.html").exists()

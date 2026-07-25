@@ -3,7 +3,8 @@
 提供仪表盘 HTML 片段和概览数据 API。
 复用 analysis_service.calc_metrics + get_trends + review_service.get_period_summary。
 """
-from datetime import datetime, timedelta, timezone
+
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
@@ -17,7 +18,7 @@ router = APIRouter()
 def _build_dashboard_summary() -> dict:
     """组装仪表盘数据：KPI + 负荷趋势 + 本周摘要."""
     svc = get_services()
-    today = datetime.now(timezone.utc)
+    today = datetime.now(UTC)
     date_to = today.strftime("%Y-%m-%d")
     date_from = (today - timedelta(days=42)).strftime("%Y-%m-%d")  # CTL 窗口
 

@@ -3,6 +3,7 @@
 心率区间基于个人最大心率，不可使用 220-年龄通用公式（spec 8.1.5）。
 默认值见 constants.DEFAULT_MAX_HR，可经 Web /settings 覆盖。
 """
+
 from __future__ import annotations
 
 from run_flow_skills_mcp.constants import DEFAULT_MAX_HR, HR_ZONE_FACTORS

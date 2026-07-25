@@ -6,8 +6,9 @@ calc_metrics 读取顺序：data/config.json → constants.py 默认值。
 config 路径通过 services.json_store.data_dir 动态获取，
 保证与 services 容器（测试时为 tmp_data_dir）一致。
 """
+
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import APIRouter, Request
@@ -90,7 +91,7 @@ async def update_config(req: ConfigUpdateRequest):
     # 合并：只更新请求中明确传入的字段（包括 null）
     update_data = req.model_dump(exclude_unset=True)
     current.update(update_data)
-    current["updated_at"] = datetime.now(timezone.utc).isoformat()
+    current["updated_at"] = datetime.now(UTC).isoformat()
 
     _save_config(current)
 

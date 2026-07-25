@@ -1,4 +1,5 @@
 """settings 路由测试."""
+
 import json
 from pathlib import Path
 
@@ -53,8 +54,8 @@ def test_put_config_merge_existing(client, tmp_data_dir: Path):
     assert resp.status_code == 200
     data = resp.json()
     assert data["max_hr"] == 185  # 保留
-    assert data["age"] == 35       # 保留
-    assert data["lthr"] == 160     # 新增
+    assert data["age"] == 35  # 保留
+    assert data["lthr"] == 160  # 新增
 
 
 def test_put_config_invalid_value(client):

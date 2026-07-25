@@ -2,10 +2,10 @@
 
 薄包装：调 AnalysisService.get_trends → 附 prompt。
 """
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from run_flow_skills_mcp.tools._deps import get_services, reset_services_cache
 
@@ -27,7 +27,7 @@ _TREND_PROMPT = """已获取用户 {days} 天 {metric} 趋势数据。
 def get_trends(
     days: int = 30,
     metric: str = "vdot",
-    _data_dir: Optional[Path] = None,
+    _data_dir: Path | None = None,
 ) -> dict:
     """获取时间序列趋势.
 

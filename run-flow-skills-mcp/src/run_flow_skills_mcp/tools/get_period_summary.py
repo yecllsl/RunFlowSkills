@@ -2,10 +2,10 @@
 
 薄包装：调 ReviewService.get_period_summary → 用 REVIEW_PROMPT 填充 → 返回。
 """
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from run_flow_skills_mcp.prompts.review_prompt import REVIEW_PROMPT
 from run_flow_skills_mcp.tools._deps import get_services, reset_services_cache
@@ -13,8 +13,8 @@ from run_flow_skills_mcp.tools._deps import get_services, reset_services_cache
 
 def get_period_summary(
     period: str = "week",
-    date_ref: Optional[str] = None,
-    _data_dir: Optional[Path] = None,
+    date_ref: str | None = None,
+    _data_dir: Path | None = None,
 ) -> dict:
     """聚合周期训练数据.
 

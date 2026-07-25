@@ -1,4 +1,5 @@
 """web 测试公共 fixture."""
+
 import json
 from pathlib import Path
 
@@ -35,12 +36,14 @@ def tmp_data_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 def client(tmp_data_dir: Path) -> TestClient:
     """FastAPI TestClient，使用临时 data_dir."""
     from run_flow_skills_mcp.web.app import create_app
+
     app = create_app()
     yield TestClient(app)
 
 
-def seed_gpx_file(path: Path, date: str = "2026-07-20", distance_km: float = 10.0,
-                  duration_s: int = 3600) -> Path:
+def seed_gpx_file(
+    path: Path, date: str = "2026-07-20", distance_km: float = 10.0, duration_s: int = 3600
+) -> Path:
     """生成一个最小可解析的 GPX 文件供测试用."""
     path.parent.mkdir(parents=True, exist_ok=True)
     # 简化 GPX：用 <time> 和 <trkpt> 序列模拟
@@ -53,11 +56,9 @@ def seed_gpx_file(path: Path, date: str = "2026-07-20", distance_km: float = 10.
         t = f"{date}T06:{i:02d}:00Z"
         points.append(f'<trkpt lat="{lat}" lon="{lon}"><ele>{ele}</ele><time>{t}</time></trkpt>')
     path.write_text(
-        f'<?xml version="1.0" encoding="UTF-8"?>\n'
-        f'<gpx version="1.1" creator="test">\n'
-        f'<trk><name>Test Run</name><trkseg>\n'
-        + "\n".join(points) + "\n"
-        + f'</trkseg></trk></gpx>',
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<gpx version="1.1" creator="test">\n'
+        "<trk><name>Test Run</name><trkseg>\n" + "\n".join(points) + "\n" + "</trkseg></trk></gpx>",
         encoding="utf-8",
     )
     return path

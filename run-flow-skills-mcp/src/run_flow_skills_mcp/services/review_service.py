@@ -3,10 +3,10 @@
 编排 storage 聚合周期数据 + 对比上周期。
 同比/环比必须明确时间窗口（analysis-rules.md 第 6 条）。
 """
+
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import UTC, datetime, timedelta
 
 from run_flow_skills_mcp.services.analysis_service import AnalysisService
 from run_flow_skills_mcp.storage.json_store import JsonStore
@@ -23,16 +23,12 @@ _PERIOD_DAYS: dict[str, int] = {
 class ReviewService:
     """复盘编排服务."""
 
-    def __init__(
-        self, parquet_store: ParquetStore, json_store: JsonStore
-    ) -> None:
+    def __init__(self, parquet_store: ParquetStore, json_store: JsonStore) -> None:
         self.parquet_store = parquet_store
         self.json_store = json_store
         self.analysis = AnalysisService(parquet_store, json_store)
 
-    def get_period_summary(
-        self, period: str = "week", date_ref: Optional[str] = None
-    ) -> dict:
+    def get_period_summary(self, period: str = "week", date_ref: str | None = None) -> dict:
         """聚合周期数据 + 对比上周期.
 
         Args:
@@ -47,11 +43,7 @@ class ReviewService:
         if days is None:
             return self._empty_summary()
 
-        end = (
-            datetime.strptime(date_ref, "%Y-%m-%d")
-            if date_ref
-            else datetime.now(timezone.utc)
-        )
+        end = datetime.strptime(date_ref, "%Y-%m-%d") if date_ref else datetime.now(UTC)
         start = end - timedelta(days=days)
         prev_start = start - timedelta(days=days)
 
@@ -59,16 +51,12 @@ class ReviewService:
         date_to = end.strftime("%Y-%m-%d")
 
         # 本期 sessions
-        sessions = self.parquet_store.query_sessions(
-            date_from=date_from, date_to=date_to
-        )
+        sessions = self.parquet_store.query_sessions(date_from=date_from, date_to=date_to)
         if not sessions:
             return self._empty_summary()
 
         # 聚合指标
-        metrics = self.parquet_store.query_metrics(
-            [s.session_id for s in sessions]
-        )
+        metrics = self.parquet_store.query_metrics([s.session_id for s in sessions])
         metrics_map = {m.session_id: m for m in metrics}
 
         total_distance = sum(s.distance_m for s in sessions) / 1000.0  # km
@@ -78,8 +66,7 @@ class ReviewService:
 
         # VDOT 趋势
         vdot_trend = [
-            {"date": s.activity_date.strftime("%Y-%m-%d"),
-             "vdot": metrics_map[s.session_id].vdot}
+            {"date": s.activity_date.strftime("%Y-%m-%d"), "vdot": metrics_map[s.session_id].vdot}
             for s in sessions
             if s.session_id in metrics_map and metrics_map[s.session_id].vdot
         ]
@@ -87,8 +74,7 @@ class ReviewService:
         # HRV 趋势
         signals = self.json_store.query_body_signals(date_from, date_to)
         hrv_trend = [
-            {"date": sig.date, "hrv": sig.hrv_rmssd}
-            for sig in signals if sig.hrv_rmssd is not None
+            {"date": sig.date, "hrv": sig.hrv_rmssd} for sig in signals if sig.hrv_rmssd is not None
         ]
 
         # 上期数据（环比）
@@ -96,9 +82,7 @@ class ReviewService:
             date_from=prev_start.strftime("%Y-%m-%d"),
             date_to=start.strftime("%Y-%m-%d"),
         )
-        prev_metrics = self.parquet_store.query_metrics(
-            [s.session_id for s in prev_sessions]
-        )
+        prev_metrics = self.parquet_store.query_metrics([s.session_id for s in prev_sessions])
         prev_tss = sum(m.tss for m in prev_metrics if m.tss)
         load_change = {
             "tss_change": total_tss - prev_tss,

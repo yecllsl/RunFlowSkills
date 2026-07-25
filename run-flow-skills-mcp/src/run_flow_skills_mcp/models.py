@@ -2,13 +2,13 @@
 
 所有核心实体在 models.py 统一定义，对应 spec 第四章。
 """
+
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field
-
 
 # ============ 类型别名 ============
 SourceType = Literal["garmin", "coros", "apple", "suunto", "polar", "manual"]
@@ -26,15 +26,15 @@ class Session(BaseModel):
     distance_m: float = Field(..., gt=0)
     duration_s: int = Field(..., gt=0)
     avg_pace_s_per_km: float = Field(..., gt=0)
-    avg_hr: Optional[int] = Field(None, ge=0, le=260)
-    max_hr: Optional[int] = Field(None, ge=0, le=260)
-    hr_zones: Optional[dict[str, float]] = None
-    cadence: Optional[int] = Field(None, ge=0, le=300)
-    elevation_gain_m: Optional[float] = Field(None, ge=0)
+    avg_hr: int | None = Field(None, ge=0, le=260)
+    max_hr: int | None = Field(None, ge=0, le=260)
+    hr_zones: dict[str, float] | None = None
+    cadence: int | None = Field(None, ge=0, le=300)
+    elevation_gain_m: float | None = Field(None, ge=0)
     source: SourceType
-    raw_file_hash: Optional[str] = None
-    raw_file_path: Optional[str] = None
-    notes: Optional[str] = None
+    raw_file_hash: str | None = None
+    raw_file_path: str | None = None
+    notes: str | None = None
 
 
 # ============ 4.2 TrainingMetrics ============
@@ -42,11 +42,11 @@ class TrainingMetrics(BaseModel):
     """训练指标（由 Session 计算，Parquet 按年分片）."""
 
     session_id: str
-    vdot: Optional[float] = Field(None, ge=0, le=100)
+    vdot: float | None = Field(None, ge=0, le=100)
     vdot_confidence: Literal["high", "estimated", "low"]
     tss: float = Field(..., ge=0)
     intensity_factor: float = Field(..., ge=0)
-    efficiency_factor: Optional[float] = None
+    efficiency_factor: float | None = None
     pace_zone: PaceZone
 
 
@@ -67,14 +67,14 @@ class BodySignal(BaseModel):
     """身体信号（日粒度，JSON 按月分文件）."""
 
     date: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}$")
-    hrv_rmssd: Optional[float] = Field(None, ge=0)
-    hrv_sdnn: Optional[float] = Field(None, ge=0)
-    hrv_pnn50: Optional[float] = Field(None, ge=0, le=100)
-    resting_hr: Optional[int] = Field(None, ge=0, le=260)
-    sleep_quality: Optional[int] = Field(None, ge=1, le=5)
-    rpe: Optional[int] = Field(None, ge=1, le=10)
-    hrv_baseline: Optional[float] = Field(None, ge=0)
-    hrv_deviation_pct: Optional[float] = None
+    hrv_rmssd: float | None = Field(None, ge=0)
+    hrv_sdnn: float | None = Field(None, ge=0)
+    hrv_pnn50: float | None = Field(None, ge=0, le=100)
+    resting_hr: int | None = Field(None, ge=0, le=260)
+    sleep_quality: int | None = Field(None, ge=1, le=5)
+    rpe: int | None = Field(None, ge=1, le=10)
+    hrv_baseline: float | None = Field(None, ge=0)
+    hrv_deviation_pct: float | None = None
 
 
 # ============ 4.5 DecisionLog ============
@@ -90,7 +90,7 @@ class DecisionLog(BaseModel):
     confidence: float = Field(..., ge=0, le=1)
     trace_chain: list[str]
     related_session_ids: list[str] = []
-    user_feedback: Optional[Literal["adopted", "rejected", "modified"]] = None
+    user_feedback: Literal["adopted", "rejected", "modified"] | None = None
 
 
 # ============ 4.6 TrainingPlan ============
@@ -100,10 +100,10 @@ class PlanSession(BaseModel):
     day: int = Field(..., ge=0, le=6)
     pace_zone: Literal["E", "M", "T", "I", "R", "rest"]
     duration_s: int = Field(..., gt=0)
-    distance_m: Optional[float] = Field(None, gt=0)
-    pace_range_s_per_km: Optional[tuple[float, float]] = None
-    hr_range: Optional[tuple[int, int]] = None
-    notes: Optional[str] = None
+    distance_m: float | None = Field(None, gt=0)
+    pace_range_s_per_km: tuple[float, float] | None = None
+    hr_range: tuple[int, int] | None = None
+    notes: str | None = None
 
 
 class PlanWeek(BaseModel):
@@ -139,14 +139,14 @@ class TrainingPlan(BaseModel):
 class UserConfig(BaseModel):
     """用户个人配置（JSON 单文件 data/config.json，覆盖 constants.py 默认值）."""
 
-    max_hr: Optional[int] = Field(None, ge=80, le=260)
-    lthr: Optional[int] = Field(None, ge=60, le=220)
-    resting_hr: Optional[int] = Field(None, ge=30, le=150)
-    age: Optional[int] = Field(None, ge=10, le=120)
-    weight_kg: Optional[float] = Field(None, gt=0, le=300)
-    gender: Optional[Gender] = None
-    height_cm: Optional[float] = Field(None, gt=0, le=300)
-    updated_at: Optional[datetime] = None
+    max_hr: int | None = Field(None, ge=80, le=260)
+    lthr: int | None = Field(None, ge=60, le=220)
+    resting_hr: int | None = Field(None, ge=30, le=150)
+    age: int | None = Field(None, ge=10, le=120)
+    weight_kg: float | None = Field(None, gt=0, le=300)
+    gender: Gender | None = None
+    height_cm: float | None = Field(None, gt=0, le=300)
+    updated_at: datetime | None = None
 
 
 # ============ 工具函数 ============

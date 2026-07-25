@@ -1,4 +1,5 @@
 """心率区间计算单元测试（spec 8.1.5, FR-IMPORT-06）."""
+
 import pytest
 
 from run_flow_skills_mcp.calculators.hr_zones import (
@@ -11,7 +12,7 @@ def test_hr_zones_boundaries_5_zones():
     """5 个心率区间 Z1-Z5."""
     boundaries = calc_hr_zones_boundaries(max_hr=200)
     assert set(boundaries.keys()) == {"Z1", "Z2", "Z3", "Z4", "Z5"}
-    for zone, (lo, hi) in boundaries.items():
+    for _zone, (lo, hi) in boundaries.items():
         assert 0 <= lo <= hi <= 200
 
 

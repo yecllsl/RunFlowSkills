@@ -1,4 +1,5 @@
 """models.py 单元测试."""
+
 from datetime import datetime
 
 import pytest
@@ -139,9 +140,14 @@ def test_training_plan_with_phases():
         phases=[
             PlanPhase(
                 phase_type="base",
-                weeks=[PlanWeek(week_index=1, sessions=[
-                    PlanSession(day=0, pace_zone="E", duration_s=1800),
-                ])],
+                weeks=[
+                    PlanWeek(
+                        week_index=1,
+                        sessions=[
+                            PlanSession(day=0, pace_zone="E", duration_s=1800),
+                        ],
+                    )
+                ],
             )
         ],
         created_at=datetime(2026, 7, 25),

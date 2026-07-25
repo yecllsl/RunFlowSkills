@@ -7,11 +7,12 @@
 4. _compute_metrics 计算 VDOT/TSS/IF/pace_zone
 5. 写入 Parquet + 重算 TrainingLoad
 """
+
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Optional, cast
+from typing import cast
 
 from run_flow_skills_mcp.calculators.pace_zones import classify_pace_zone
 from run_flow_skills_mcp.calculators.training_load import (
@@ -58,16 +59,14 @@ def _to_naive_utc(dt: datetime) -> datetime:
     """
     if dt.tzinfo is not None:
         # 转换到 UTC 再去掉 tzinfo
-        return dt.astimezone(timezone.utc).replace(tzinfo=None)
+        return dt.astimezone(UTC).replace(tzinfo=None)
     return dt
 
 
 class ImportService:
     """导入编排服务."""
 
-    def __init__(
-        self, parquet_store: ParquetStore, json_store: JsonStore
-    ) -> None:
+    def __init__(self, parquet_store: ParquetStore, json_store: JsonStore) -> None:
         self.parquet_store = parquet_store
         self.json_store = json_store
 
@@ -75,7 +74,7 @@ class ImportService:
         self,
         file_path: Path,
         force: bool = False,
-        source: Optional[SourceType] = None,
+        source: SourceType | None = None,
     ) -> dict:
         """导入文件：解析 → 去重 → 计算指标 → 存储."""
         try:
@@ -191,9 +190,7 @@ class ImportService:
         """生成下一个 session_id：查当天已存数量 +1."""
         date_str = activity_date.strftime("%Y%m%d")
         date_iso = activity_date.strftime("%Y-%m-%d")
-        existing = self.parquet_store.query_sessions(
-            date_from=date_iso, date_to=date_iso
-        )
+        existing = self.parquet_store.query_sessions(date_from=date_iso, date_to=date_iso)
         return generate_session_id(date_str, len(existing))
 
     def _recompute_training_load(self) -> None:
@@ -209,9 +206,7 @@ class ImportService:
             return
 
         # 按日聚合 TSS
-        all_metrics = self.parquet_store.query_metrics(
-            [s.session_id for s in all_sessions]
-        )
+        all_metrics = self.parquet_store.query_metrics([s.session_id for s in all_sessions])
         metrics_map = {m.session_id: m for m in all_metrics}
 
         daily_tss: dict[str, float] = defaultdict(float)
@@ -252,6 +247,6 @@ class ImportService:
                 atl=atl,
                 tsb=tsb,
                 weekly_tss=weekly_tss,
-                updated_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(UTC),
             )
             self.json_store.save_load(load)

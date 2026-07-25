@@ -1,4 +1,5 @@
 """Parquet 存储测试（spec 5.1, FR-IMPORT-07）."""
+
 from datetime import datetime
 from pathlib import Path
 
@@ -53,7 +54,7 @@ def test_query_by_source(store: ParquetStore):
 
 def test_query_limit(store: ParquetStore):
     for i in range(5):
-        store.append_session(_make_session(f"sess_20260725_{i+1:03d}", datetime(2026, 7, 25)))
+        store.append_session(_make_session(f"sess_20260725_{i + 1:03d}", datetime(2026, 7, 25)))
     result = store.query_sessions(limit=3)
     assert len(result) == 3
 
