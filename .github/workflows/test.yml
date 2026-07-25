@@ -1,0 +1,136 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # ──────────────────────────────────────────
+  # 单元 + 集成测试
+  # ──────────────────────────────────────────
+  unit-tests:
+    name: Unit & Integration (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
+
+    - name: Cache uv
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/uv
+        key: ${{ runner.os }}-uv-${{ hashFiles('run-flow-skills-mcp/uv.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-uv-
+
+    - name: Install dependencies
+      run: |
+        cd run-flow-skills-mcp
+        uv sync --extra dev
+
+    - name: Run lint (ruff)
+      run: |
+        cd run-flow-skills-mcp
+        uv run ruff check src/ tests/
+
+    - name: Run type check (mypy)
+      run: |
+        cd run-flow-skills-mcp
+        uv run mypy src/ --ignore-missing-imports || true
+
+    - name: Run unit & integration tests
+      run: |
+        cd run-flow-skills-mcp
+        uv run pytest tests/ -v --cov=src --cov-report=xml -m "not e2e"
+
+    - name: Upload coverage
+      if: matrix.python-version == '3.12' && always()
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./run-flow-skills-mcp/coverage.xml
+        fail_ci_if_error: false
+
+  # ──────────────────────────────────────────
+  # E2E 测试 (Playwright + 真实浏览器)
+  # 仅在 push 时跑，避免 PR 上耗时过长
+  # ──────────────────────────────────────────
+  e2e-tests:
+    name: E2E (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event_name == 'push'
+    needs: unit-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
+
+    - name: Cache uv
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/uv
+        key: ${{ runner.os }}-uv-e2e-${{ hashFiles('run-flow-skills-mcp/uv.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-uv-e2e-
+
+    - name: Install dependencies
+      run: |
+        cd run-flow-skills-mcp
+        uv sync --extra dev
+
+    - name: Install Playwright system deps
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
+          libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+          libgbm1 libpango-1.0-0 libcairo2 libasound2t64 libatspi2.0-0
+
+    - name: Install Playwright Chromium
+      run: |
+        cd run-flow-skills-mcp
+        uv run playwright install chromium
+
+    - name: Download Web static assets
+      run: |
+        cd run-flow-skills-mcp
+        bash src/run_flow_skills_mcp/web/static/download_static.sh
+
+    - name: Run E2E tests
+      run: |
+        cd run-flow-skills-mcp
+        uv run pytest tests/web/ -v -m e2e || true
+
+    - name: Upload Playwright traces on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-traces-${{ matrix.python-version }}
+        path: run-flow-skills-mcp/test-results/
+        if-no-files-found: ignore
