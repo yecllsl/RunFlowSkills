@@ -35,6 +35,10 @@ dev = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[project.scripts]
+run-flow-skills-mcp = "run_flow_skills_mcp.server:main"
+run-flow-skills-web = "run_flow_skills_mcp.web.app:main"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/run_flow_skills_mcp"]
 
