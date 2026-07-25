@@ -46,7 +46,6 @@ class TrainingMetrics(BaseModel):
     vdot_confidence: Literal["high", "estimated", "low"]
     tss: float = Field(..., ge=0)
     intensity_factor: float = Field(..., ge=0)
-    efficiency_factor: float | None = None
     pace_zone: PaceZone
 
 
@@ -102,7 +101,6 @@ class PlanSession(BaseModel):
     duration_s: int = Field(..., gt=0)
     distance_m: float | None = Field(None, gt=0)
     pace_range_s_per_km: tuple[float, float] | None = None
-    hr_range: tuple[int, int] | None = None
     notes: str | None = None
 
 

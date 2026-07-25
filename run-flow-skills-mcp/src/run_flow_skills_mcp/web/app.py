@@ -29,7 +29,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="RunFlowSkills 可视化",
         description="深度跑步分析本地可视化应用",
-        version="0.1.0",
+        version="0.1.1",
     )
 
     # 挂载静态文件（JS库、CSS）

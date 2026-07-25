@@ -48,7 +48,6 @@ def _metrics_to_row(m: TrainingMetrics) -> dict[str, object]:
         "vdot_confidence": m.vdot_confidence,
         "tss": m.tss,
         "intensity_factor": m.intensity_factor,
-        "efficiency_factor": m.efficiency_factor,
         "pace_zone": m.pace_zone,
     }
 

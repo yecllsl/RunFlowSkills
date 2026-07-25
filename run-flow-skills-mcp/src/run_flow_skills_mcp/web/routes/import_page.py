@@ -15,8 +15,8 @@ from run_flow_skills_mcp.constants import (
     MAX_UPLOAD_FILE_SIZE_MB,
     SUPPORTED_IMPORT_EXT,
 )
+from run_flow_skills_mcp.tools._deps import get_services
 from run_flow_skills_mcp.web.app import templates
-from run_flow_skills_mcp.web.deps import get_services
 from run_flow_skills_mcp.web.schemas import ManualInputRequest
 
 router = APIRouter()

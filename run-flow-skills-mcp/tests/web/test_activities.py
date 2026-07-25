@@ -21,7 +21,7 @@ def test_activities_api_empty(client):
 
 def test_activities_partial_with_data(client, tmp_data_dir: Path):
     """有数据时列表显示活动."""
-    from run_flow_skills_mcp.web.deps import get_services
+    from run_flow_skills_mcp.tools._deps import get_services
     from tests.web.conftest import seed_gpx_file
 
     svc = get_services(tmp_data_dir)
@@ -35,7 +35,7 @@ def test_activities_partial_with_data(client, tmp_data_dir: Path):
 
 def test_activities_api_with_data(client, tmp_data_dir: Path):
     """有数据时 API 返回 session 列表."""
-    from run_flow_skills_mcp.web.deps import get_services
+    from run_flow_skills_mcp.tools._deps import get_services
     from tests.web.conftest import seed_gpx_file
 
     svc = get_services(tmp_data_dir)
@@ -55,7 +55,7 @@ def test_activities_api_with_data(client, tmp_data_dir: Path):
 
 def test_activity_detail_partial(client, tmp_data_dir: Path):
     """详情片段返回 session 详情."""
-    from run_flow_skills_mcp.web.deps import get_services
+    from run_flow_skills_mcp.tools._deps import get_services
     from tests.web.conftest import seed_gpx_file
 
     svc = get_services(tmp_data_dir)

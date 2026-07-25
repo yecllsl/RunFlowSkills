@@ -7,8 +7,8 @@
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
 
+from run_flow_skills_mcp.tools._deps import get_services
 from run_flow_skills_mcp.web.app import templates
-from run_flow_skills_mcp.web.deps import get_services
 
 router = APIRouter()
 

@@ -22,8 +22,8 @@ from run_flow_skills_mcp.constants import (
     DEFAULT_RESTING_HR,
     DEFAULT_WEIGHT_KG,
 )
+from run_flow_skills_mcp.tools._deps import get_services
 from run_flow_skills_mcp.web.app import templates
-from run_flow_skills_mcp.web.deps import get_services
 from run_flow_skills_mcp.web.schemas import ConfigUpdateRequest
 
 router = APIRouter()

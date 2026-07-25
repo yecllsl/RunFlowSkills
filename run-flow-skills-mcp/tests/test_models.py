@@ -80,7 +80,6 @@ def test_training_metrics_vdot_confidence_enum():
         pace_zone="T",
     )
     assert m.vdot_confidence == "high"
-    assert m.efficiency_factor is None
 
 
 def test_training_metrics_invalid_confidence():

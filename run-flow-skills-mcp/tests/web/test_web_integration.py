@@ -8,7 +8,7 @@ from tests.web.conftest import seed_gpx_file
 
 def test_full_workflow_import_to_dashboard(client, tmp_data_dir: Path):
     """完整工作流：导入 → 仪表盘显示 → 活动列表 → 设置 → 导出."""
-    from run_flow_skills_mcp.web.deps import get_services
+    from run_flow_skills_mcp.tools._deps import get_services
 
     get_services(tmp_data_dir)
 

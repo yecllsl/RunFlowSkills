@@ -7,11 +7,8 @@
 
 from __future__ import annotations
 
-from typing import Literal
-
 from run_flow_skills_mcp.constants import PACE_ZONE_FACTORS
-
-PaceZone = Literal["E", "M", "T", "I", "R"]
+from run_flow_skills_mcp.models import PaceZone
 
 # VDOT 与参考配速的近似换算（VDOT 45 ≈ 4:36/km = 276s/km，即阈值配速）
 # 公式：VDOT_pace = COEFF / VDOT（秒/km，经验近似）
