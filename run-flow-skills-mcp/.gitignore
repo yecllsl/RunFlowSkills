@@ -11,3 +11,8 @@ build/
 .venv/
 data/
 !tests/data/fixtures/.gitkeep
+
+# 第三方 JS 库（由 download_static 脚本下载）
+src/run_flow_skills_mcp/web/static/htmx.min.js
+src/run_flow_skills_mcp/web/static/alpine.min.js
+src/run_flow_skills_mcp/web/static/echarts.min.js
