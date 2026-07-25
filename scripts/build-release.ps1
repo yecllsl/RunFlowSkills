@@ -15,7 +15,9 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$projectRoot = $PSScriptRoot | Split-Path | Split-Path
+# 脚本位于 RunFlowSkills/scripts/build-release.ps1
+# $PSScriptRoot = ...\RunFlowSkills\scripts → Split-Path 一次 = ...\RunFlowSkills（项目根）
+$projectRoot = $PSScriptRoot | Split-Path
 $distDir = Join-Path $projectRoot "dist"
 $packageName = "RunFlowSkills-v$Version"
 $stagingDir = Join-Path $distDir $packageName

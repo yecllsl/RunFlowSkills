@@ -1,0 +1,43 @@
+# RunFlowSkills 根目录 .gitignore
+# 子目录 run-flow-skills-mcp/.gitignore 处理 Python 相关忽略项
+
+# ─────────── 构建产物 ───────────
+dist/
+build/
+*.egg-info/
+
+# ─────────── 虚拟环境 ───────────
+.venv/
+venv/
+env/
+
+# ─────────── 用户数据（永不入库）───────────
+# data/ 在 run-flow-skills-mcp/.gitignore 中已忽略
+# 此处兜底，防止根目录误生成 data/
+data/
+
+# ─────────── IDE / 编辑器 ───────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ─────────── 操作系统 ───────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─────────── Python 缓存（兜底）───────────
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ─────────── 临时文件 ───────────
+*.tmp
+*.bak
+*.log
