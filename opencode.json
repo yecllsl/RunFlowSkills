@@ -1,0 +1,19 @@
+{
+  "mcp": {
+    "run-flow-skills-mcp": {
+      "command": [
+        "uv",
+        "run",
+        "--directory",
+        "D:\\yecll\\Documents\\LocalCode\\RunFlowSkills/run-flow-skills-mcp",
+        "run-flow-skills-mcp"
+      ],
+      "type": "local",
+      "enabled": true
+    }
+  },
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md"
+  ]
+}

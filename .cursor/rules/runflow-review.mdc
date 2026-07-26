@@ -1,4 +1,10 @@
 ---
+description: runflow-review Skill
+globs: "**/*"
+alwaysApply: false
+---
+
+---
 name: runflow-review
 description: Use when 用户想复盘训练、生成总结、回顾本周/本月训练、导出报告
 version: 1.0.0

@@ -1,4 +1,10 @@
 ---
+description: runflow-coach Skill
+globs: "**/*"
+alwaysApply: false
+---
+
+---
 name: runflow-coach
 description: Use when 用户询问今天能不能跑、今天怎么练、感觉累、恢复状态、训练建议
 version: 1.0.0

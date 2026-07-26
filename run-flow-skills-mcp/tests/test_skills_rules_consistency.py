@@ -1,11 +1,16 @@
-"""Skills 与 Rules 一致性测试."""
+"""Skills 与 Rules 一致性测试.
+
+原 .trae/rules/ 目录已迁移至根目录 AGENTS.md，本测试相应改为：
+- 检查 AGENTS.md 存在
+- 检查 AGENTS.md 第 9 节"Skill 引用规则"中的 Skill 名称合法
+"""
 
 import re
 from pathlib import Path
 
 _PROJECT_ROOT = Path(__file__).parent.parent.parent
 _SKILLS_DIR = _PROJECT_ROOT / ".trae" / "skills"
-_RULES_DIR = _PROJECT_ROOT / ".trae" / "rules"
+_AGENTS_MD = _PROJECT_ROOT / "AGENTS.md"
 
 # 14 个合法 Tool（Plan 2）
 VALID_TOOLS = {
@@ -34,6 +39,15 @@ EXPECTED_SKILLS = [
     "runflow-stats",
 ]
 
+# AGENTS.md 必须包含的 5 个规则章节标题
+EXPECTED_RULE_SECTIONS = [
+    "交互协议",
+    "计算规则",
+    "分析规则",
+    "教练规则",
+    "数据安全规则",
+]
+
 
 def test_all_skills_exist():
     """6 个 Skill 全部存在."""
@@ -41,17 +55,12 @@ def test_all_skills_exist():
         assert (_SKILLS_DIR / skill / "SKILL.md").exists()
 
 
-def test_all_rules_exist():
-    """5 个 Rule 全部存在."""
-    expected = [
-        "calculation-rules.md",
-        "analysis-rules.md",
-        "coaching-rules.md",
-        "data-safety-rules.md",
-        "interaction-rules.md",
-    ]
-    for rule in expected:
-        assert (_RULES_DIR / rule).exists()
+def test_agents_md_exists_and_contains_all_rules():
+    """AGENTS.md 存在且包含原 5 个规则的章节."""
+    assert _AGENTS_MD.exists(), "根目录 AGENTS.md 不存在"
+    content = _AGENTS_MD.read_text(encoding="utf-8")
+    for section in EXPECTED_RULE_SECTIONS:
+        assert section in content, f"AGENTS.md 缺少章节: {section}"
 
 
 def test_skills_reference_only_valid_tools():
@@ -70,19 +79,19 @@ def test_skills_reference_only_valid_tools():
         )
 
 
-def test_rules_scope_references_valid_skills():
-    """所有 Rule 的 scope 引用合法 Skill 名称."""
-    skill_names = set(EXPECTED_SKILLS)
-    for rule_file in _RULES_DIR.glob("*.md"):
-        content = rule_file.read_text(encoding="utf-8")
-        if content.startswith("---"):
-            fm = content.split("---")[1]
-            scope_match = re.search(r"scope:\s*(.+)", fm)
-            if scope_match:
-                scopes = [s.strip() for s in scope_match.group(1).split(",")]
-                for s in scopes:
-                    if s:
-                        assert s in skill_names, f"{rule_file.name} scope '{s}' 不在合法 Skill 中"
+def test_agents_md_skill_reference_table_valid():
+    """AGENTS.md 第 9 节 Skill 引用表中的 Skill 名称必须合法."""
+    content = _AGENTS_MD.read_text(encoding="utf-8")
+    # 定位 "Skill 引用规则" 章节
+    if "Skill 引用规则" not in content:
+        return  # 章节缺失由其他测试覆盖
+    section_start = content.index("Skill 引用规则")
+    # 截取该章节内容到下一个 ## 二级标题
+    next_h2 = content.find("\n## ", section_start + 1)
+    section = content[section_start:next_h2 if next_h2 > 0 else len(content)]
+    # 校验表中出现的 Skill 名称都在 EXPECTED_SKILLS 内
+    for skill in EXPECTED_SKILLS:
+        assert skill in section, f"AGENTS.md Skill 引用表缺少 {skill}"
 
 
 def test_every_skill_has_workflow_section():

@@ -1,4 +1,10 @@
 ---
+description: runflow-plan Skill
+globs: "**/*"
+alwaysApply: false
+---
+
+---
 name: runflow-plan
 description: Use when 用户想制定训练计划、生成课表、设定目标、备赛全马/半马/破4
 version: 1.0.0

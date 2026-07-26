@@ -1,4 +1,10 @@
 ---
+description: runflow-analyze Skill
+globs: "**/*"
+alwaysApply: false
+---
+
+---
 name: runflow-analyze
 description: Use when 用户想分析训练数据、查看负荷、VDOT趋势、HRV、疲劳度、心率漂移
 version: 1.0.0

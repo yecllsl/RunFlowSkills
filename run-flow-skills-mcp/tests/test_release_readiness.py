@@ -29,17 +29,29 @@ class TestReleaseReadiness:
         assert (_PROJECT_ROOT / ".trae" / "skills" / skill / "SKILL.md").exists()
 
     @pytest.mark.parametrize(
-        "rule",
+        "rule_section",
         [
-            "calculation-rules.md",
-            "analysis-rules.md",
-            "coaching-rules.md",
-            "data-safety-rules.md",
-            "interaction-rules.md",
+            "交互协议",
+            "计算规则",
+            "分析规则",
+            "教练规则",
+            "数据安全规则",
         ],
     )
-    def test_rule_exists(self, rule):
-        assert (_PROJECT_ROOT / ".trae" / "rules" / rule).exists()
+    def test_rule_section_exists_in_agents_md(self, rule_section):
+        """原 5 个 rules 已合并到 AGENTS.md，校验各章节存在."""
+        agents_md = _PROJECT_ROOT / "AGENTS.md"
+        assert agents_md.exists(), "根目录 AGENTS.md 不存在"
+        content = agents_md.read_text(encoding="utf-8")
+        assert rule_section in content, f"AGENTS.md 缺少章节: {rule_section}"
+
+    def test_agents_md_exists(self):
+        """AGENTS.md 作为跨平台规则统一入口必须存在."""
+        assert (_PROJECT_ROOT / "AGENTS.md").exists()
+
+    def test_platforms_md_exists(self):
+        """PLATFORMS.md 平台兼容性矩阵必须存在."""
+        assert (_PROJECT_ROOT / "PLATFORMS.md").exists()
 
     # ─────────── MCP Server ───────────
     def test_server_py_exists(self):

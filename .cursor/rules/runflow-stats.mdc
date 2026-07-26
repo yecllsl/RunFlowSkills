@@ -1,4 +1,10 @@
 ---
+description: runflow-stats Skill
+globs: "**/*"
+alwaysApply: false
+---
+
+---
 name: runflow-stats
 description: Use when 用户想查看统计、分布、导出数据、趋势汇总、按维度分组
 version: 1.0.0

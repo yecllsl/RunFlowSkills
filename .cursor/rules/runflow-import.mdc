@@ -1,4 +1,10 @@
 ---
+description: runflow-import Skill
+globs: "**/*"
+alwaysApply: false
+---
+
+---
 name: runflow-import
 description: Use when 用户想导入训练数据、上传文件、同步记录、手动录入跑步活动
 version: 1.0.0

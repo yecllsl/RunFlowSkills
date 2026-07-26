@@ -1,6 +1,7 @@
 # RunFlowSkills — 深度跑步分析 Skills 套件
 
-> **文件夹即产品**：下载解压后在 Trae IDE CN / WorkBuddy / OpenCode 中打开即可使用，无需 Web 服务或桌面 App。
+> **文件夹即产品**：下载解压后在 Trae IDE CN / Claude Code / Cursor / Windsurf / Continue / OpenCode / WorkBuddy 中打开即可使用，无需 Web 服务或桌面 App。
+> 跨平台规范见 [AGENTS.md](AGENTS.md)，平台兼容性矩阵见 [PLATFORMS.md](PLATFORMS.md)。
 
 ## 简介
 
@@ -37,9 +38,19 @@ RunFlowSkills 是一套基于 MCP（Model Context Protocol）的跑步数据分�
 bash install.sh
 ```
 
-### 2. 在 Trae 中打开
+### 2. 在支持 MCP 的 Agent 平台中打开
 
-用 Trae IDE CN 打开此文件夹 → 设置 → MCP → 启用「项目级 MCP」→ 重启 Trae。
+- **Trae IDE CN**：打开此文件夹 → 设置 → MCP → 启用「项目级 MCP」→ 重启 Trae
+- **Claude Code**：`claude /open <项目路径>`（自动读取 `.mcp.json`，镜像已入库）
+- **Cursor / Windsurf / Continue**：镜像已入库，直接打开即可
+- **OpenCode**：在项目目录运行 `opencode`（自动读取 `opencode.json` 与 `AGENTS.md`）
+- **WorkBuddy**：打开此文件夹（自动读取 `.workbuddy/mcp.json` 与 `AGENTS.md`）
+
+> 各平台镜像已通过 `scripts\sync-platforms.ps1` 生成并入库，开箱即用。
+> 如需重新同步（修改 AGENTS.md 或 SKILL.md 后）：
+> ```powershell
+> .\scripts\sync-platforms.ps1  # 全平台同步
+> ```
 
 ### 3. 开始使用
 
@@ -65,14 +76,29 @@ bash install.sh
 
 ```
 RunFlowSkills/
-├── .trae/skills/          # 6 个 Skill 工作流
-├── .trae/rules/           # 5 个规则文件
-├── .trae/mcp.json         # MCP 配置
+├── AGENTS.md              # 跨平台 Agent 统一规范（规则单一事实源）
+├── PLATFORMS.md           # 平台兼容性矩阵
+├── .trae/                 # Trae IDE 平台目录（默认源）
+│   ├── skills/            # 6 个 Skill 工作流（单一事实源）
+│   └── mcp.json           # Trae MCP 配置
 ├── run-flow-skills-mcp/   # MCP Server + Web（Python）
+├── scripts/
+│   ├── sync-platforms.ps1     # 跨平台镜像同步脚本
+│   └── generate-mcp-config.ps1 # 按平台生成 MCP 配置
 ├── data/                  # 运行时数据（.gitignore）
 ├── install.ps1 / .sh      # 安装脚本
 ├── QUICKSTART.md          # 5 分钟上手
 └── DEPLOY.md              # 详细部署
+```
+
+### 跨平台兼容
+
+本项目支持 Trae / Claude Code / Cursor / Windsurf / Continue 等多平台，详见 [PLATFORMS.md](PLATFORMS.md)。
+
+**生成其他平台镜像**：
+```powershell
+.\scripts\sync-platforms.ps1                       # 同步全部平台
+.\scripts\sync-platforms.ps1 -Platforms claude-code,cursor -DryRun  # 预演
 ```
 
 ## 开发
