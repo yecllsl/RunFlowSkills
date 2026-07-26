@@ -170,25 +170,36 @@ Write-Host "========================================" -ForegroundColor Green
 Write-Host "  ✓ 安装完成！" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "下一步操作：" -ForegroundColor White
+Write-Host "下一步操作（任选一个平台）：" -ForegroundColor White
 Write-Host ""
-Write-Host "  1. 用 Trae IDE 打开此文件夹" -ForegroundColor White
-Write-Host "     文件 → 打开文件夹 → 选择: $projectRoot" -ForegroundColor DarkGray
+Write-Host "  Trae IDE CN：" -ForegroundColor Cyan
+Write-Host "    1. 文件 → 打开文件夹 → 选择: $projectRoot" -ForegroundColor DarkGray
+Write-Host "    2. 设置 → MCP → 打开'启用项目级 MCP'开关" -ForegroundColor DarkGray
+Write-Host "    3. 重启 Trae" -ForegroundColor DarkGray
 Write-Host ""
-Write-Host "  2. 启用项目级 MCP" -ForegroundColor White
-Write-Host "     设置 → MCP → 打开'启用项目级 MCP'开关" -ForegroundColor DarkGray
+Write-Host "  Claude Code：" -ForegroundColor Cyan
+Write-Host "    claude /open $projectRoot" -ForegroundColor DarkGray
 Write-Host ""
-Write-Host "  3. 重启 Trae" -ForegroundColor White
+Write-Host "  Cursor / Windsurf / Continue：" -ForegroundColor Cyan
+Write-Host "    打开文件夹即可（配置已入库）" -ForegroundColor DarkGray
 Write-Host ""
-Write-Host "  4. 开始使用！" -ForegroundColor White
-Write-Host "     /import  - 导入训练文件" -ForegroundColor DarkGray
-Write-Host "     /analyze - 分析训练数据" -ForegroundColor DarkGray
-Write-Host "     /plan    - 生成训练计划" -ForegroundColor DarkGray
-Write-Host "     /review  - 复盘训练" -ForegroundColor DarkGray
-Write-Host "     /coach   - AI 教练建议" -ForegroundColor DarkGray
-Write-Host "     /stats   - 统计与导出" -ForegroundColor DarkGray
+Write-Host "  OpenCode：" -ForegroundColor Cyan
+Write-Host "    cd $projectRoot && opencode" -ForegroundColor DarkGray
 Write-Host ""
-Write-Host "  可选：启动 Web 可视化界面" -ForegroundColor Cyan
-Write-Host "     cd run-flow-skills-mcp && uv run run-flow-skills-web" -ForegroundColor DarkGray
-Write-Host "     浏览器访问 http://127.0.0.1:8002" -ForegroundColor DarkGray
+Write-Host "  WorkBuddy：" -ForegroundColor Cyan
+Write-Host "    打开文件夹即可（.workbuddy/mcp.json 已入库）" -ForegroundColor DarkGray
+Write-Host ""
+Write-Host "开始使用：" -ForegroundColor White
+Write-Host "  /import  - 导入训练文件" -ForegroundColor DarkGray
+Write-Host "  /analyze - 分析训练数据" -ForegroundColor DarkGray
+Write-Host "  /plan    - 生成训练计划" -ForegroundColor DarkGray
+Write-Host "  /review  - 复盘训练" -ForegroundColor DarkGray
+Write-Host "  /coach   - AI 教练建议" -ForegroundColor DarkGray
+Write-Host "  /stats   - 统计与导出" -ForegroundColor DarkGray
+Write-Host ""
+Write-Host "可选：启动 Web 可视化界面" -ForegroundColor Cyan
+Write-Host "  cd run-flow-skills-mcp && uv run run-flow-skills-web" -ForegroundColor DarkGray
+Write-Host "  浏览器访问 http://127.0.0.1:8002" -ForegroundColor DarkGray
+Write-Host ""
+Write-Host "详细部署指南：见 DEPLOY.md 和 PLATFORMS.md" -ForegroundColor Yellow
 Write-Host ""

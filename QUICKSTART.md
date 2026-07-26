@@ -4,7 +4,17 @@
 
 - Python 3.12+
 - uv 包管理器（[安装指南](https://docs.astral.sh/uv/getting-started/install/)）
-- Trae IDE CN / WorkBuddy / OpenCode（任选其一）
+- 任一支持的 Agent 平台（见下表）
+
+| 平台 | 获取方式 |
+|------|----------|
+| Trae IDE CN | [trae.ai](https://www.trae.ai) |
+| Claude Code | `npm install -g @anthropic-ai/claude-code` |
+| Cursor | [cursor.com](https://cursor.com) |
+| Windsurf | [codeium.com/windsurf](https://codeium.com/windsurf) |
+| Continue | VSCode/JetBrains 插件 |
+| OpenCode | [opencode.ai](https://opencode.ai) |
+| WorkBuddy | 字节跳动内网 |
 
 ## Step 1: 安装依赖（1 分钟）
 
@@ -22,18 +32,25 @@ bash install.sh
 
 脚本会自动检查 Python、uv，并运行 `uv sync` 安装依赖。
 
-## Step 2: 在 Trae 中打开项目（1 分钟）
+## Step 2: 在 Agent 平台中打开项目（1 分钟）
 
-1. 打开 Trae IDE CN
-2. 文件 → 打开文件夹 → 选择 `RunFlowSkills`
-3. 设置 → MCP → 打开「启用项目级 MCP」开关
-4. 重启 Trae
+> 所有平台的配置镜像已入库，无需额外同步即可使用。
 
-> Trae 会自动加载 `.trae/mcp.json`，注册 `run-flow-skills-mcp` server。
+| 平台 | 打开方式 |
+|------|----------|
+| **Trae IDE CN** | 文件 → 打开文件夹 → 设置 → MCP → 启用「项目级 MCP」→ 重启 |
+| **Claude Code** | `claude /open <项目路径>`（自动读取 `.mcp.json`） |
+| **Cursor** | 打开文件夹（自动读取 `.cursor/mcp.json` + `.cursor/rules/`） |
+| **Windsurf** | 打开文件夹（自动读取 `mcp_config.json` + `.windsurfrules`） |
+| **Continue** | 打开文件夹（自动读取 `.continue/config.json`） |
+| **OpenCode** | 在项目目录运行 `opencode`（自动读取 `opencode.json`） |
+| **WorkBuddy** | 打开文件夹（自动读取 `.workbuddy/mcp.json`） |
+
+> 如需重新同步镜像（修改 AGENTS.md 或 SKILL.md 后）：`.\scripts\sync-platforms.ps1`
 
 ## Step 3: 导入第一条训练数据（1 分钟）
 
-在 Trae 对话框中输入：
+在 Agent 对话框中输入：
 
 ```
 /import D:\runs\2026-07-20-morning-run.fit
@@ -68,7 +85,8 @@ AI 会读取身体信号 + 训练负荷 + 当前计划，综合判断后给出�
 ```bash
 cd run-flow-skills-mcp
 # 首次需下载静态资源
-pwsh src/run_flow_skills_mcp/web/static/download_static.ps1
+pwsh src/run_flow_skills_mcp/web/static/download_static.ps1   # Windows
+bash src/run_flow_skills_mcp/web/static/download_static.sh    # Linux/macOS
 # 启动 Web 服务
 uv run run-flow-skills-web
 ```
@@ -79,4 +97,4 @@ uv run run-flow-skills-web
 
 - 试用所有 6 个命令：`/import` `/analyze` `/plan` `/review` `/coach` `/stats`
 - 在 Web 设置页配置个人参数（最大心率/乳酸阈值心率等）
-- 详见 [DEPLOY.md](DEPLOY.md) 和 [设计规格说明书](docs/superpowers/specs/2026-07-25-runflow-skills-design.md)
+- 详见 [DEPLOY.md](DEPLOY.md)、[PLATFORMS.md](PLATFORMS.md) 和 [设计规格说明书](docs/superpowers/specs/2026-07-25-runflow-skills-design.md)

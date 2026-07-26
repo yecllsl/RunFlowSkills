@@ -63,11 +63,15 @@ bash install.sh
 ## 技术架构
 
 ```
-用户 → Trae（宿主 AI）→ Skills 编排 → MCP Tools → Services → Storage（Parquet/JSON）
-                      ↓
-                   Rules 约束
-                      ↓
-                Web 可视化（FastAPI + HTMX）
+用户 → Agent 平台（Trae/Claude Code/Cursor/Windsurf/Continue/OpenCode/WorkBuddy）
+         ↓
+      Skills 编排（6 个 Skill）
+         ↓
+      MCP Tools（14 个）→ Services → Storage（Parquet/JSON）
+         ↓
+      AGENTS.md 规则约束
+         ↓
+      Web 可视化（FastAPI + HTMX，127.0.0.1:8002）
 ```
 
 详见 [设计规格说明书](docs/superpowers/specs/2026-07-25-runflow-skills-design.md)。
@@ -76,28 +80,53 @@ bash install.sh
 
 ```
 RunFlowSkills/
-├── AGENTS.md              # 跨平台 Agent 统一规范（规则单一事实源）
-├── PLATFORMS.md           # 平台兼容性矩阵
-├── .trae/                 # Trae IDE 平台目录（默认源）
-│   ├── skills/            # 6 个 Skill 工作流（单一事实源）
-│   └── mcp.json           # Trae MCP 配置
-├── run-flow-skills-mcp/   # MCP Server + Web（Python）
+├── AGENTS.md                # 跨平台 Agent 统一规范（规则单一事实源）
+├── PLATFORMS.md             # 平台兼容性矩阵
+├── CLAUDE.md                # Claude Code 规则镜像
+├── .mcp.json                # Claude Code MCP 配置
+├── opencode.json            # OpenCode MCP 配置
+├── .windsurfrules           # Windsurf 规则镜像
+├── .trae/                   # Trae IDE 平台目录（默认源）
+│   ├── skills/              # 6 个 Skill 工作流（单一事实源）
+│   └── mcp.json             # Trae MCP 配置
+├── .claude/skills/          # Claude Code Skills 镜像
+├── .cursor/                 # Cursor 镜像
+│   ├── rules/               # .mdc 规则文件
+│   └── mcp.json             # Cursor MCP 配置
+├── .opencode/skills/        # OpenCode Skills 镜像
+├── .workbuddy/mcp.json      # WorkBuddy MCP 配置
+├── .continue/config.json    # Continue 配置镜像
+├── run-flow-skills-mcp/     # MCP Server + Web（Python）
+│   ├── src/                 # 源代码（tools/services/models/calculators/web）
+│   └── tests/               # 测试套件（348 用例）
 ├── scripts/
-│   ├── sync-platforms.ps1     # 跨平台镜像同步脚本
-│   └── generate-mcp-config.ps1 # 按平台生成 MCP 配置
-├── data/                  # 运行时数据（.gitignore）
-├── install.ps1 / .sh      # 安装脚本
-├── QUICKSTART.md          # 5 分钟上手
-└── DEPLOY.md              # 详细部署
+│   ├── sync-platforms.ps1         # 跨平台镜像同步脚本
+│   ├── generate-mcp-config.ps1    # 按平台生成 MCP 配置
+│   ├── build-release.ps1          # 构建发布包（Windows）
+│   └── build-release.sh           # 构建发布包（Linux/macOS）
+├── data/                    # 运行时数据（.gitignore）
+├── install.ps1 / .sh        # 安装脚本
+├── QUICKSTART.md            # 5 分钟上手
+└── DEPLOY.md                # 详细部署
 ```
 
 ### 跨平台兼容
 
-本项目支持 Trae / Claude Code / Cursor / Windsurf / Continue 等多平台，详见 [PLATFORMS.md](PLATFORMS.md)。
+本项目支持 7 个桌面 Agent 平台，镜像已入库，开箱即用。详见 [PLATFORMS.md](PLATFORMS.md)。
 
-**生成其他平台镜像**：
+| 平台 | 规则入口 | Skills | MCP |
+|------|----------|--------|-----|
+| Trae IDE CN | `.trae/` | ✅ | ✅ |
+| Claude Code | `CLAUDE.md` + `.mcp.json` | ✅ | ✅ |
+| Cursor | `.cursor/rules/` | ✅（转 .mdc） | ✅ |
+| Windsurf | `.windsurfrules` | ✅（合并） | ✅ |
+| Continue | `.continue/config.json` | ✅（索引） | ✅ |
+| OpenCode | `opencode.json` | ✅ | ✅ |
+| WorkBuddy | `.workbuddy/mcp.json` | ❌ Early | ✅ |
+
+重新同步镜像（修改 AGENTS.md 或 SKILL.md 后）：
 ```powershell
-.\scripts\sync-platforms.ps1                       # 同步全部平台
+.\scripts\sync-platforms.ps1                       # 全平台同步
 .\scripts\sync-platforms.ps1 -Platforms claude-code,cursor -DryRun  # 预演
 ```
 

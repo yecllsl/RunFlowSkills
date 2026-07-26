@@ -16,7 +16,7 @@ enforcement: hard
 # AGENTS.md — RunFlowSkills 跨平台 Agent 统一规范
 
 > 本文件是项目对所有 AI Coding Agent 的统一入口规范。
-> Trae / Claude Code / Cursor / Windsurf / Continue / Aider 等平台在加载项目时应优先读取本文件。
+> Trae / Claude Code / Cursor / Windsurf / Continue / OpenCode / WorkBuddy 等平台在加载项目时应优先读取本文件。
 > 原 `.trae/rules/` 目录已迁移至本文件，不再保留分散的规则文件。
 
 ---
