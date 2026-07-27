@@ -2,8 +2,7 @@
 
 ## 前置要求
 
-- Python 3.12+
-- uv 包管理器（[安装指南](https://docs.astral.sh/uv/getting-started/install/)）
+- **零依赖**：无需预装 Python 或 uv，安装脚本会自动处理
 - 任一支持的 Agent 平台（见下表）
 
 | 平台 | 获取方式 |
@@ -30,7 +29,12 @@
 bash install.sh
 ```
 
-脚本会自动检查 Python、uv，并运行 `uv sync` 安装依赖。
+**特性**：
+- 自动使用项目内 uv（无需预装）
+- 自动下载 Python 3.12+（如未安装）
+- 使用国内镜像加速依赖安装（阿里云镜像）
+
+脚本会自动检查环境、安装依赖，并配置国内镜像源。
 
 ## Step 2: 在 Agent 平台中打开项目（1 分钟）
 

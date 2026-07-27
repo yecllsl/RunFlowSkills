@@ -56,7 +56,6 @@ log_ok "cleaned"
 # [2/6] 创建目标目录结构
 # ──────────────────────────────────────────
 log_step "[2/6] Create directory structure..."
-mkdir -p "$STAGING_DIR/.trae/rules"
 mkdir -p "$STAGING_DIR/.trae/skills"
 mkdir -p "$STAGING_DIR/run-flow-skills-mcp/src"
 mkdir -p "$STAGING_DIR/run-flow-skills-mcp/data/sessions"
@@ -89,15 +88,6 @@ cat > "$STAGING_DIR/.trae/mcp.json" <<'EOF'
   }
 }
 EOF
-
-# 复制 rules
-if [ -d "$PROJECT_ROOT/.trae/rules" ]; then
-    (cd "$PROJECT_ROOT/.trae/rules" && find . -maxdepth 1 -type f -print0) | \
-        while IFS= read -r -d '' rel; do
-            rel="${rel#./}"
-            cp "$PROJECT_ROOT/.trae/rules/$rel" "$STAGING_DIR/.trae/rules/$rel"
-        done
-fi
 
 # 复制 skills（递归，排除 __pycache__）
 if [ -d "$PROJECT_ROOT/.trae/skills" ]; then
@@ -171,7 +161,6 @@ log_step "[6/6] Verify and pack..."
 # 验证关键文件
 required=(
     ".trae/mcp.json"
-    ".trae/rules/calculation-rules.md"
     ".trae/skills/runflow-import/SKILL.md"
     "run-flow-skills-mcp/pyproject.toml"
     "run-flow-skills-mcp/uv.lock"

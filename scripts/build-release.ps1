@@ -42,7 +42,6 @@ New-Item -ItemType Directory -Path $distDir -Force | Out-Null
 # ──────────────────────────────────────────
 Write-Host "[2/6] Create directory structure..." -ForegroundColor Yellow
 $dirs = @(
-    ".trae/rules",
     ".trae/skills",
     "run-flow-skills-mcp/src",
     "run-flow-skills-mcp/data/sessions",
@@ -51,7 +50,8 @@ $dirs = @(
     "run-flow-skills-mcp/data/body_signals",
     "run-flow-skills-mcp/data/decisions",
     "run-flow-skills-mcp/data/plans",
-    "scripts"
+    "scripts",
+    "tools"
 )
 foreach ($d in $dirs) {
     New-Item -ItemType Directory -Path (Join-Path $stagingDir $d) -Force | Out-Null
@@ -79,9 +79,6 @@ $mcpJson = @'
 }
 '@
 $mcpJson | Set-Content -Path (Join-Path $stagingDir ".trae\mcp.json") -Encoding UTF8
-
-# 复制 rules
-Copy-Item -Path (Join-Path $projectRoot ".trae\rules\*.md") -Destination (Join-Path $stagingDir ".trae\rules") -Recurse
 
 # 复制 skills（递归，排除 __pycache__）
 Get-ChildItem -Path (Join-Path $projectRoot ".trae\skills") -Directory | ForEach-Object {
@@ -149,7 +146,6 @@ Write-Host "[6/6] Verify and pack..." -ForegroundColor Yellow
 # 验证关键文件
 $required = @(
     ".trae\mcp.json",
-    ".trae\rules\calculation-rules.md",
     ".trae\skills\runflow-import\SKILL.md",
     "run-flow-skills-mcp\pyproject.toml",
     "run-flow-skills-mcp\uv.lock",

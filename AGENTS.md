@@ -17,7 +17,6 @@ enforcement: hard
 
 > 本文件是项目对所有 AI Coding Agent 的统一入口规范。
 > Trae / Claude Code / Cursor / Windsurf / Continue / OpenCode / WorkBuddy 等平台在加载项目时应优先读取本文件。
-> 原 `.trae/rules/` 目录已迁移至本文件，不再保留分散的规则文件。
 
 ---
 
@@ -44,8 +43,6 @@ RunFlowSkills 是一套基于 MCP（Model Context Protocol）的深度跑步数�
 
 ## 2. 交互协议（Interaction Protocol）
 
-> 来源：原 `.trae/rules/interaction-rules.md`
-
 1. **命令格式**：`/import` `/analyze` `/plan` `/review` `/coach` `/stats`
 2. **自然语言关键词**：导入/分析/计划/复盘/教练/统计
 3. **每次操作结果必须给出明确反馈**（成功/跳过/失败 + 原因）
@@ -65,7 +62,6 @@ RunFlowSkills 是一套基于 MCP（Model Context Protocol）的深度跑步数�
 
 ## 3. 计算规则（Calculation Rules）
 
-> 来源：原 `.trae/rules/calculation-rules.md`
 > 适用 Skill：runflow-analyze / runflow-plan / runflow-coach
 
 1. VDOT 计算必须使用 Powers 方法，距离 <1500m 时标记为 "estimated" 并降低置信度
@@ -81,7 +77,6 @@ RunFlowSkills 是一套基于 MCP（Model Context Protocol）的深度跑步数�
 
 ## 4. 分析规则（Analysis Rules）
 
-> 来源：原 `.trae/rules/analysis-rules.md`
 > 适用 Skill：runflow-analyze / runflow-review
 
 1. AI 分析必须具体到数据层面，禁止笼统结论（"训练不错"/"负荷合理" 不合规）
@@ -96,7 +91,6 @@ RunFlowSkills 是一套基于 MCP（Model Context Protocol）的深度跑步数�
 
 ## 5. 教练规则（Coaching Rules）
 
-> 来源：原 `.trae/rules/coaching-rules.md`
 > 适用 Skill：runflow-coach
 
 1. AI 建议必须具体可执行：类型 + 强度 + 时长 + 配速区间（"E 区间 30 分钟，配速 5'40"-6'00"/km"）
@@ -112,7 +106,6 @@ RunFlowSkills 是一套基于 MCP（Model Context Protocol）的深度跑步数�
 
 ## 6. 数据安全规则（Data Safety Rules）
 
-> 来源：原 `.trae/rules/data-safety-rules.md`
 > 适用 Skill：runflow-import / runflow-stats / runflow-coach
 > **强制约束，不可绕过**
 

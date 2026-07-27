@@ -30,12 +30,29 @@ RunFlowSkills 是一套基于 MCP（Model Context Protocol）的跑步数据分�
 
 ### 1. 安装
 
+**零依赖安装（推荐）**：无需预装 Python 或 uv，安装脚本会自动处理一切。
+
 ```powershell
 # Windows
 .\install.ps1
 
 # Linux/macOS
 bash install.sh
+```
+
+**特性**：
+- 自动使用项目内 uv（无需预装）
+- 自动下载 Python 3.12+（如未安装）
+- 使用国内镜像加速依赖安装（阿里云镜像）
+
+**手动安装**（如需）：
+```bash
+# 安装 uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# 安装依赖
+cd run-flow-skills-mcp
+uv sync
 ```
 
 ### 2. 在支持 MCP 的 Agent 平台中打开
@@ -104,8 +121,11 @@ RunFlowSkills/
 │   ├── generate-mcp-config.ps1    # 按平台生成 MCP 配置
 │   ├── build-release.ps1          # 构建发布包（Windows）
 │   └── build-release.sh           # 构建发布包（Linux/macOS）
-├── data/                    # 运行时数据（.gitignore）
-├── install.ps1 / .sh        # 安装脚本
+├── tools/                         # 工具（uv 可执行文件）
+│   ├── uv.exe                     # Windows uv
+│   └── uv                         # Linux/macOS uv
+├── data/                          # 运行时数据（.gitignore）
+├── install.ps1 / .sh              # 安装脚本（自动使用 tools/uv）
 ├── QUICKSTART.md            # 5 分钟上手
 └── DEPLOY.md                # 详细部署
 ```
