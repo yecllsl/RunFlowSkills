@@ -17,7 +17,7 @@
 | Windsurf | `.windsurfrules` | ✅（合并） | `mcp_config.json` | 🟡 镜像已入库 |
 | Continue | `.continue/config.json` | ✅（索引） | 同配置 | 🟡 镜像已入库 |
 | OpenCode | `AGENTS.md`（自动） | ✅ | `opencode.json` | 🟡 镜像已入库 |
-| WorkBuddy | `AGENTS.md`（自动） | ❌ Early | `.workbuddy/mcp.json` | 🟡 镜像已入库 |
+| WorkBuddy | `AGENTS.md`（自动） | ✅ | `.workbuddy/mcp.json` | 🟡 镜像已入库 |
 
 > 所有平台镜像已入库，开箱即用。详见 [PLATFORMS.md](PLATFORMS.md)。
 
@@ -141,9 +141,10 @@ OpenCode 自动读取：
 
 WorkBuddy 自动读取：
 - `.workbuddy/mcp.json`：MCP Server 配置
+- `.workbuddy/skills/`：6 个 Skill 定义（原生 Skill 支持）
 - `AGENTS.md`：规则（WorkBuddy 自动读取）
 
-> WorkBuddy 处于 Early Support 阶段，**仅支持 MCP，不支持原生 Skills**。规则通过 `AGENTS.md` 传递。
+> WorkBuddy 已支持原生 Skills。`.workbuddy/skills/` 中的 SKILL.md 会被自动识别并激活。
 
 ## 重新同步镜像
 

@@ -1,7 +1,7 @@
 ---
 project: RunFlowSkills
-version: 1.1.0
-last_updated: 2026-07-26
+version: 1.2.0
+last_updated: 2026-07-28
 applies_to:
   - trae
   - claude-code
@@ -159,7 +159,7 @@ RunFlowSkills 是一套基于 MCP（Model Context Protocol）的深度跑步数�
 | Windsurf | `AGENTS.md` + `.windsurfrules` | `.windsurfrules`（合并） | `mcp_config.json` | 🟡 同步脚本支持 |
 | Continue | `AGENTS.md` + `.continue/config.json` | `.continue/config.json`（索引） | 同配置 | 🟡 同步脚本支持 |
 | OpenCode | `AGENTS.md`（自动读取） | `.opencode/skills/` | `opencode.json` | 🟡 同步脚本支持 |
-| WorkBuddy | `AGENTS.md`（自动读取） | 不支持原生 Skill（Early Support） | `.workbuddy/mcp.json` | 🟡 同步脚本支持 |
+| WorkBuddy | `AGENTS.md`（自动读取） | `.workbuddy/skills/` | `.workbuddy/mcp.json` | 🟡 同步脚本支持 |
 
 ### 8.2 同步与生成
 
@@ -167,7 +167,7 @@ RunFlowSkills 是一套基于 MCP（Model Context Protocol）的深度跑步数�
 - 配置生成：`scripts/generate-mcp-config.ps1`（按平台生成对应 MCP 配置）
 - 单一事实源：根目录 `AGENTS.md` + `.trae/skills/`（当前）
 - 支持平台：Trae / Claude Code / Cursor / Windsurf / Continue / OpenCode / WorkBuddy
-- 镜像目录入库：`.claude/`、`.cursor/`、`.windsurfrules`、`.continue/`、`.opencode/`、`.workbuddy/`、`opencode.json`、`CLAUDE.md`、`.mcp.json` 均提交到 Git，便于开箱即用
+- 镜像目录入库：`.claude/`、`.cursor/`、`.windsurfrules`、`.continue/`、`.opencode/`、`.workbuddy/`（含 `skills/`）、`opencode.json`、`CLAUDE.md`、`.mcp.json` 均提交到 Git，便于开箱即用
 
 ### 8.3 平台专有依赖清单
 
@@ -179,7 +179,7 @@ RunFlowSkills 是一套基于 MCP（Model Context Protocol）的深度跑步数�
 | Python 3.12+ | 版本约束 | 用户环境 | 评估降至 3.10+（pydantic v2 兼容） |
 | OpenCode 不支持 `${workspaceFolder}` | OpenCode 专属 | opencode.json 启动命令 | 同步脚本强制写入绝对路径 |
 | OpenCode MCP 结构 `{type,command[],enabled}` | OpenCode 专属 | opencode.json 字段格式 | 同步脚本生成 OpenCode 专用结构 |
-| WorkBuddy 仅支持 MCP，不支持 Skills | WorkBuddy 早期阶段 | 无 Skill 镜像 | 同步脚本仅生成 `.workbuddy/mcp.json` |
+| WorkBuddy Skills 目录命名 | WorkBuddy 专属 | Skill 镜像路径 | 使用 `.workbuddy/skills/`（与 `.codebuddy/skills/` 并行） |
 
 ---
 
@@ -204,3 +204,4 @@ RunFlowSkills 是一套基于 MCP（Model Context Protocol）的深度跑步数�
 |------|------|------|
 | 1.0.0 | 2026-07-26 | 初始版本：合并 5 个 rules 文件，新增跨平台规范与平台矩阵 |
 | 1.1.0 | 2026-07-26 | 移除 GitHub Copilot / Aider 支持；新增 OpenCode / WorkBuddy 平台；镜像目录入库策略 |
+| 1.2.0 | 2026-07-28 | WorkBuddy 升级为原生 Skill 支持：`.workbuddy/skills/` 目录同步；更新平台依赖清单 |

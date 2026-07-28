@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     按目标 agent 平台生成对应的 MCP 配置文件。
 
@@ -10,7 +10,7 @@
       - Windsurf   : mcp_config.json    使用绝对路径
       - Continue   : .continue/config.json  使用绝对路径
       - OpenCode   : opencode.json      使用绝对路径，MCP 结构为 {type,command[],enabled}
-      - WorkBuddy  : .workbuddy/mcp.json  使用绝对路径（Early Support，仅 MCP）
+      - WorkBuddy  : .workbuddy/mcp.json  使用绝对路径
 
     本脚本根据目标平台生成对应配置，避免手工维护多份配置导致漂移。
 

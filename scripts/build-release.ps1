@@ -1,4 +1,4 @@
-# RunFlowSkills 发布包构建脚本（PowerShell 版）
+﻿# RunFlowSkills 发布包构建脚本（PowerShell 版）
 # 与 scripts/build-release.sh 逻辑对齐
 #
 # 使用方法：

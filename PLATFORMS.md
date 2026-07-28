@@ -15,7 +15,7 @@
 | Windsurf | `AGENTS.md` + `.windsurfrules` | `.windsurfrules`（合并） | `mcp_config.json` | 🟡 同步脚本支持 | P2 |
 | Continue | `AGENTS.md` + `.continue/config.json` | `.continue/config.json`（索引） | `.continue/config.json` | 🟡 同步脚本支持 | P3 |
 | OpenCode | `AGENTS.md`（自动读取） | `.opencode/skills/<name>/SKILL.md` | `opencode.json` | 🟡 同步脚本支持 | P2 |
-| WorkBuddy | `AGENTS.md`（自动读取） | 不支持原生 Skill（Early Support） | `.workbuddy/mcp.json` | 🟡 同步脚本支持 | P3 |
+| WorkBuddy | `AGENTS.md`（自动读取） | `.workbuddy/skills/<name>/SKILL.md` | `.workbuddy/mcp.json` | 🟡 同步脚本支持 | P3 |
 
 **图例**：✅ 默认支持 / 🟡 通过同步脚本支持
 
@@ -37,7 +37,8 @@ graph TD
     A -->|sync-platforms.ps1| W[.windsurfrules]
     A -->|sync-platforms.ps1| CT[.continue/<br/>config.json]
     A -->|sync-platforms.ps1| OC[opencode.json<br/>+.opencode/skills/]
-    A -->|sync-platforms.ps1| WB[.workbuddy/<br/>mcp.json only]
+    A -->|sync-platforms.ps1| WB[.workbuddy/<br/>mcp.json + skills/]
+    S -->|sync-platforms.ps1| WB
     S -->|sync-platforms.ps1| C
     S -->|sync-platforms.ps1| CU
     S -->|sync-platforms.ps1| CT
@@ -172,9 +173,9 @@ uv sync --directory run-flow-skills-mcp
 **MCP 配置位置**：`.workbuddy/mcp.json`
 
 **WorkBuddy 特定约定**：
-- Early Support 阶段：**仅支持 MCP，不支持原生 Skills**
-- 同步脚本仅生成 `.workbuddy/mcp.json`，不生成 Skill 镜像
-- 规则通过根目录 `AGENTS.md` 传递（WorkBuddy 自动读取）
+- 原生 Skill 支持：`.workbuddy/skills/<name>/SKILL.md` 被自动识别并激活
+- AGENTS.md 自动被 WorkBuddy 读取，无需额外声明
+- SKILL.md frontmatter 中的 `name` 和 `description` 用于 AI 匹配触发
 
 ---
 
@@ -186,7 +187,7 @@ uv sync --directory run-flow-skills-mcp
 | `${workspaceFolder}` 变量 | VSCode/Trae 风格 | `.trae/mcp.json` | `generate-mcp-config.ps1` 按平台替换为绝对路径 |
 | OpenCode 不支持 `${workspaceFolder}` | OpenCode 专属 | `opencode.json` | 同步脚本强制写入绝对路径 |
 | OpenCode MCP 结构 `{type,command[],enabled}` | OpenCode 专属 | `opencode.json` 字段格式 | 同步脚本生成 OpenCode 专用结构 |
-| WorkBuddy 仅支持 MCP | WorkBuddy Early Support | 无 Skill 镜像 | 同步脚本仅生成 `.workbuddy/mcp.json` |
+| WorkBuddy Skills 目录命名 | WorkBuddy 专属 | Skill 镜像路径 | 使用 `.workbuddy/skills/`（与 `.codebuddy/skills/` 并行） |
 | `uv run --directory` | uv 专属 | MCP 启动命令 | `generate-mcp-config.ps1 -PythonRunner python` 提供 `python -m` 备选 |
 | Python 3.12+ | 版本约束 | 用户环境 | 评估降至 3.10+（需 pydantic v2 + `match` 语法兼容性测试） |
 | `install.ps1/.sh` 假设 uv | 安装脚本 | 首次部署 | 待增加 `--no-uv` 分支（pip 路径） |
@@ -233,7 +234,7 @@ def test_no_platform_specific_agent_dirs():
 
 ### 5.3 已知限制
 
-- **WorkBuddy** 处于 Early Support 阶段，仅支持 MCP，不支持原生 Skills
+- **WorkBuddy** 已支持原生 Skills，`.workbuddy/skills/` 中的 SKILL.md 会被自动识别
 - **Cursor** 不支持原生 Skill 调度，需通过 `.cursor/rules/*.mdc` 模拟
 - **Continue** Skill 路径在 config.json 中引用，需 Continue 插件支持
 - **OpenCode** 不支持 `${workspaceFolder}` 变量，必须使用绝对路径
@@ -268,3 +269,4 @@ def test_no_platform_specific_agent_dirs():
 |------|------|------|
 | 1.0.0 | 2026-07-26 | 初始版本：定义 5 平台支持矩阵、安装差异、测试要求 |
 | 1.1.0 | 2026-07-26 | 移除 GitHub Copilot / Aider 支持；新增 OpenCode / WorkBuddy 平台；镜像目录入库策略 |
+| 1.2.0 | 2026-07-28 | WorkBuddy 升级为原生 Skill 支持：`.workbuddy/skills/` 目录同步；更新平台依赖清单 |

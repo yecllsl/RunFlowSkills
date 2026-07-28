@@ -1,13 +1,13 @@
 {
   "mcpServers": {
     "run-flow-skills-mcp": {
+      "command": "uv",
       "args": [
         "run",
         "--directory",
         "D:\\yecll\\Documents\\LocalCode\\RunFlowSkills/run-flow-skills-mcp",
         "run-flow-skills-mcp"
-      ],
-      "command": "uv"
+      ]
     }
   }
 }

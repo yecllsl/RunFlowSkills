@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     将根目录 AGENTS.md + .trae/skills/ 单一事实源同步到各 agent 平台目录。
 
@@ -16,7 +16,7 @@
       - windsurf   : .windsurfrules（合并 AGENTS.md 全文）
       - continue   : .continue/config.json（结构化引用 + skills 索引）
       - opencode   : opencode.json（OpenCode 专用 MCP 结构） + .opencode/skills/
-      - workbuddy  : .workbuddy/mcp.json（仅 MCP，Early Support 无 Skills）
+      - workbuddy  : .workbuddy/mcp.json + .workbuddy/skills/（原生 Skill 支持）
 
 .PARAMETER Platforms
     要同步的平台列表，默认全部：trae,claude-code,cursor,windsurf,continue,opencode,workbuddy
@@ -243,9 +243,10 @@ function Sync-OpenCode {
 
 function Sync-WorkBuddy {
     param([switch]$DryRun)
-    Write-Host "[WorkBuddy] 同步到 .workbuddy/mcp.json（Early Support，仅 MCP）..." -ForegroundColor Cyan
-    # WorkBuddy Early Support：仅支持 MCP，不支持原生 Skills
-    # 规则通过根目录 AGENTS.md 传递（WorkBuddy 自动读取）
+    Write-Host "[WorkBuddy] 同步到 .workbuddy/ ..." -ForegroundColor Cyan
+    # 1. 镜像 skills 目录到 .workbuddy/skills/（WorkBuddy 原生 Skill 支持）
+    Copy-PlatformDir -Source $sourceSkillsDir -Destination (Join-Path $ProjectRoot '.workbuddy\skills') -DryRun:$DryRun
+    # 2. 生成 .workbuddy/mcp.json
     $workbuddyConfig = @{
         mcpServers = @{
             'run-flow-skills-mcp' = @{

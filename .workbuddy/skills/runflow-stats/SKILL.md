@@ -1,0 +1,103 @@
+---
+name: runflow-stats
+description: Use when 用户想查看统计、分布、导出数据、趋势汇总、按维度分组
+version: 1.0.0
+allowed-tools: [get_statistics, export_data]
+inputs:
+  - name: dimension
+    type: enum
+    values: [by_source, by_week, by_month, by_year, by_pace_zone, by_distance_range]
+    required: true
+    description: 统计维度
+  - name: date_from
+    type: string
+    required: false
+    description: 起始日期 YYYY-MM-DD
+  - name: date_to
+    type: string
+    required: false
+    description: 结束日期 YYYY-MM-DD
+  - name: export_format
+    type: enum
+    values: [none, csv, json, parquet, md]
+    required: false
+    default: none
+    description: 导出格式，none 表示仅展示
+outputs:
+  - name: groups
+    type: array
+    description: 每组含 count/total_distance_km/total_duration_s/avg_pace/total_tss/avg_vdot
+  - name: export_path
+    type: string
+    description: 导出文件路径（仅 export_format != none 时）
+error_handling:
+  - invalid_dimension: "返回空并提示支持的 7 种维度"
+  - export_failed: "提示重试"
+  - include_ai_logs: "二次确认后导出"
+compatibility:
+  mcp_server: ">=0.1.1"
+  python: ">=3.12"
+  platforms: [trae, claude-code, cursor, windsurf, continue]
+---
+
+# 训练统计与导出流程
+
+## Overview
+
+训练统计助手，按维度分组聚合数据并支持导出。核心流程：确定维度 → 查询统计 → 展示 → 可选导出。
+
+## When to Use
+
+- 用户说"统计"/"分布"/"导出"/"趋势"
+- 用户想按来源/周/月/年/配速区间/距离范围分组
+- 用户需要导出训练数据
+
+## Workflow
+
+### 1. 确定统计维度
+
+支持维度：
+- `by_source`：按数据来源（garmin/coros/apple/manual）
+- `by_week`：按周
+- `by_month`：按月
+- `by_year`：按年
+- `by_pace_zone`：按配速区间（E/M/T/I/R）
+- `by_distance_range`：按距离范围（<5k/5-10k/10-21k/21-42k/>=42k）
+
+### 2. 调用统计 Tool
+
+调用 `get_statistics(dimension, date_from, date_to)`：
+- 返回 groups（每组含 count/total_distance_km/total_duration_s/avg_pace/total_tss/avg_vdot）
+
+### 3. 展示统计
+
+以表格 + 简要文字展示，**不调 LLM**（统计是纯数据展示）。
+
+### 4. 可选导出
+
+用户要求导出时调用 `export_data(format, include_ai_logs)`：
+- format：csv / json / parquet / md
+- include_ai_logs：是否含 AI 决策日志（含时二次确认）
+- **导出前必须用户确认**（data-safety-rules.md）
+
+## Quick Reference
+
+| 步骤 | Tool | 说明 |
+|------|------|------|
+| 分组统计 | `get_statistics` | 7 种维度 |
+| 导出数据 | `export_data` | csv/json/parquet/md |
+
+## Common Mistakes
+
+- **导出前未确认**：export_data 前必须用户确认
+- **全量导出未含 AI 日志**：询问是否包含 AI 决策记录
+- **统计维度不合法**：仅支持 7 种维度，非法维度返回空
+- **统计调 LLM**：统计是纯数据展示，不调 LLM
+
+## 约束规则
+
+> 规则统一收敛至根目录 [AGENTS.md](../../../AGENTS.md)，本节仅列与本 Skill 直接相关的条目。
+
+- 遵循 `AGENTS.md §6 数据安全规则`：导出前用户确认，含 AI 日志时二次确认
+- 遵循 `AGENTS.md §2 交互协议`：批量操作展示进度
+- 统计结果以表格展示，不调 LLM 生成解读

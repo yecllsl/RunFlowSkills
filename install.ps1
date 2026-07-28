@@ -309,8 +309,8 @@ Write-Host ""
 Write-Host "  OpenCode：" -ForegroundColor Cyan
 Write-Host "    cd $projectRoot && opencode" -ForegroundColor DarkGray
 Write-Host ""
-Write-Host "  WorkBuddy：" -ForegroundColor Cyan
-Write-Host "    打开文件夹即可（.workbuddy/mcp.json 已入库）" -ForegroundColor DarkGray
+  Write-Host "  WorkBuddy：" -ForegroundColor Cyan
+  Write-Host "    打开文件夹即可（.workbuddy/mcp.json + .workbuddy/skills/ 已入库）" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "开始使用：" -ForegroundColor White
 Write-Host "  /import  - 导入训练文件" -ForegroundColor DarkGray

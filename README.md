@@ -111,7 +111,9 @@ RunFlowSkills/
 │   ├── rules/               # .mdc 规则文件
 │   └── mcp.json             # Cursor MCP 配置
 ├── .opencode/skills/        # OpenCode Skills 镜像
-├── .workbuddy/mcp.json      # WorkBuddy MCP 配置
+├── .workbuddy/                # WorkBuddy 镜像
+│   ├── skills/                # 6 个 Skill 定义
+│   └── mcp.json               # WorkBuddy MCP 配置
 ├── .continue/config.json    # Continue 配置镜像
 ├── run-flow-skills-mcp/     # MCP Server + Web（Python）
 │   ├── src/                 # 源代码（tools/services/models/calculators/web）
@@ -142,7 +144,7 @@ RunFlowSkills/
 | Windsurf | `.windsurfrules` | ✅（合并） | ✅ |
 | Continue | `.continue/config.json` | ✅（索引） | ✅ |
 | OpenCode | `opencode.json` | ✅ | ✅ |
-| WorkBuddy | `.workbuddy/mcp.json` | ❌ Early | ✅ |
+| WorkBuddy | `.workbuddy/` | ✅ | ✅ |
 
 重新同步镜像（修改 AGENTS.md 或 SKILL.md 后）：
 ```powershell
