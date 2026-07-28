@@ -156,8 +156,8 @@ RunFlowSkills 是一套基于 MCP（Model Context Protocol）的深度跑步数�
 | Trae IDE CN | `AGENTS.md` + `.trae/` | `.trae/skills/` | `.trae/mcp.json` | ✅ 默认支持 |
 | Claude Code | `AGENTS.md` + `CLAUDE.md` | `.claude/skills/` | `.mcp.json` | 🟡 同步脚本支持 |
 | Cursor | `AGENTS.md` + `.cursor/rules/` | `.cursor/rules/`（转 rules） | `.cursor/mcp.json` | 🟡 同步脚本支持 |
-| Windsurf | `AGENTS.md` + `.windsurfrules` | `.windsurfrules`（合并） | `mcp_config.json` | 🟡 同步脚本支持 |
-| Continue | `AGENTS.md` + `.continue/config.json` | `.continue/config.json`（索引） | 同配置 | 🟡 同步脚本支持 |
+| Windsurf | `AGENTS.md` + `.windsurf/rules/` | `.windsurf/rules/`（现代格式） | `.windsurf/mcp.json` | 🟡 同步脚本支持 |
+| Continue | `AGENTS.md` + `.continue/config.yaml` | `.continue/config.yaml`（索引） | `.continue/mcpServers/` | 🟡 同步脚本支持 |
 | OpenCode | `AGENTS.md`（自动读取） | `.opencode/skills/` | `opencode.json` | 🟡 同步脚本支持 |
 | WorkBuddy | `AGENTS.md`（自动读取） | `.workbuddy/skills/` | `.workbuddy/mcp.json` | 🟡 同步脚本支持 |
 
@@ -167,7 +167,7 @@ RunFlowSkills 是一套基于 MCP（Model Context Protocol）的深度跑步数�
 - 配置生成：`scripts/generate-mcp-config.ps1`（按平台生成对应 MCP 配置）
 - 单一事实源：根目录 `AGENTS.md` + `.trae/skills/`（当前）
 - 支持平台：Trae / Claude Code / Cursor / Windsurf / Continue / OpenCode / WorkBuddy
-- 镜像目录入库：`.claude/`、`.cursor/`、`.windsurfrules`、`.continue/`、`.opencode/`、`.workbuddy/`（含 `skills/`）、`opencode.json`、`CLAUDE.md`、`.mcp.json` 均提交到 Git，便于开箱即用
+- 镜像目录入库：`.claude/`、`.cursor/`、`.windsurf/`、`.continue/`（含 `config.yaml` + `mcpServers/`）、`.opencode/`、`.workbuddy/`（含 `skills/`）、`opencode.json`、`CLAUDE.md`、`.mcp.json` 均提交到 Git，便于开箱即用
 
 ### 8.3 平台专有依赖清单
 
@@ -180,6 +180,8 @@ RunFlowSkills 是一套基于 MCP（Model Context Protocol）的深度跑步数�
 | OpenCode 不支持 `${workspaceFolder}` | OpenCode 专属 | opencode.json 启动命令 | 同步脚本强制写入绝对路径 |
 | OpenCode MCP 结构 `{type,command[],enabled}` | OpenCode 专属 | opencode.json 字段格式 | 同步脚本生成 OpenCode 专用结构 |
 | WorkBuddy Skills 目录命名 | WorkBuddy 专属 | Skill 镜像路径 | 使用 `.workbuddy/skills/`（与 `.codebuddy/skills/` 并行） |
+| Windsurf 现代规则格式 | Windsurf Wave 8+ | `.windsurf/rules/` 目录 | 单文件 `.windsurfrules` 作为兼容 fallback |
+| Continue config.yaml 格式 | Continue 现代标准 | `config.yaml` + `.continue/mcpServers/` | `config.json` 保留为兼容 fallback |
 
 ---
 

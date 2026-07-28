@@ -1,0 +1,24 @@
+name: RunFlowSkills
+version: 1.0.0
+schema: v1
+skills:
+  - path: .trae/skills/runflow-analyze/SKILL.md
+    name: runflow-analyze
+  - path: .trae/skills/runflow-coach/SKILL.md
+    name: runflow-coach
+  - path: .trae/skills/runflow-import/SKILL.md
+    name: runflow-import
+  - path: .trae/skills/runflow-plan/SKILL.md
+    name: runflow-plan
+  - path: .trae/skills/runflow-review/SKILL.md
+    name: runflow-review
+  - path: .trae/skills/runflow-stats/SKILL.md
+    name: runflow-stats
+mcpServers:
+  - name: run-flow-skills-mcp
+    command: uv
+    args:
+      - run
+      - --directory
+      - D:\yecll\Documents\LocalCode\RunFlowSkills/run-flow-skills-mcp
+      - run-flow-skills-mcp

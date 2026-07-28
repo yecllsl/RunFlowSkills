@@ -13,8 +13,8 @@
     目标平台镜像规则：
       - claude-code : .claude/skills/<name>/SKILL.md + CLAUDE.md（复制 AGENTS.md）
       - cursor     : .cursor/rules/runflow-agents.mdc + .cursor/rules/<skill>.mdc
-      - windsurf   : .windsurfrules（合并 AGENTS.md 全文）
-      - continue   : .continue/config.json（结构化引用 + skills 索引）
+      - windsurf   : .windsurf/rules/runflow-skills.md（Skills 指南） + .windsurfrules（兼容 fallback）；约束规则通过 AGENTS.md 直接读取
+      - continue   : .continue/config.yaml（skills 索引 + MCP） + .continue/mcpServers/*.yaml + config.json（兼容 fallback）；约束规则通过 AGENTS.md 直接读取
       - opencode   : opencode.json（OpenCode 专用 MCP 结构） + .opencode/skills/
       - workbuddy  : .workbuddy/mcp.json + .workbuddy/skills/（原生 Skill 支持）
 
@@ -191,16 +191,86 @@ $skillContent
 
 function Sync-Windsurf {
     param([switch]$DryRun)
-    Write-Host "[Windsurf] 同步到 .windsurfrules ..." -ForegroundColor Cyan
-    # Windsurf 单文件规则，合并 AGENTS.md 全文
+    Write-Host "[Windsurf] 同步到 .windsurf/rules/ + .windsurfrules（兼容）..." -ForegroundColor Cyan
+    # Windsurf 原生读取 AGENTS.md 作为约束规则（单一事实源）
+    # .windsurf/rules/ 仅用于 Skills 使用指南（非约束规则）
+
+    # 1. Skills 使用指南（.windsurf/rules/ 目录，model_decision 触发）
+    $windsurfRulesDir = Join-Path $ProjectRoot '.windsurf\rules'
+    $skillsList = ($skills | ForEach-Object { "- `/$($_.Name)`: $($_.Name)" }) -join "`n"
+    $skillsGuide = @"
+---
+trigger: model_decision
+description: "用户询问跑步训练、导入数据、分析负荷、制定计划、复盘训练、教练建议、统计分布时使用"
+---
+
+# RunFlowSkills 技能清单
+
+本项目提供 6 个跑步数据分析技能，通过 MCP Tool 暴露：
+
+$skillsList
+
+## 使用方式
+
+直接用自然语言描述需求，AI 会自动匹配对应技能：
+- "导入今天的跑步文件" → runflow-import
+- "分析最近 30 天的训练" → runflow-analyze
+- "帮我制定全马破 4 的 12 周计划" → runflow-plan
+- "复盘本周训练" → runflow-review
+- "今天能跑间歇吗？" → runflow-coach
+- "按周统计跑量" → runflow-stats
+"@
+    Write-PlatformFile -Path (Join-Path $windsurfRulesDir 'runflow-skills.md') -Content $skillsGuide -DryRun:$DryRun
+
+    # 2. 兼容格式：.windsurfrules（Windsurf 仍读取，作为 fallback）
     Write-PlatformFile -Path (Join-Path $ProjectRoot '.windsurfrules') -Content $agentsContent -DryRun:$DryRun
 }
 
 function Sync-Continue {
     param([switch]$DryRun)
-    Write-Host "[Continue] 同步到 .continue/config.json ..." -ForegroundColor Cyan
-    # Continue 使用结构化 config，引用 AGENTS.md 与 skills 路径
-    $config = @{
+    Write-Host "[Continue] 同步到 config.yaml + .continue/mcpServers/ ..." -ForegroundColor Cyan
+    # Continue 原生读取 AGENTS.md 作为约束规则（单一事实源）
+    # config.yaml 仅配置 skills 索引和 MCP 服务器
+
+    # 1. 生成 config.yaml（YAML 格式，现代 Continue 标准）
+    $skillsYamlLines = @()
+    foreach ($skill in $skills) {
+        $skillsYamlLines += "  - path: .trae/skills/$($skill.Name)/SKILL.md"
+        $skillsYamlLines += "    name: $($skill.Name)"
+    }
+    $skillsYaml = $skillsYamlLines -join "`n"
+
+    $configYaml = @"
+name: RunFlowSkills
+version: 1.0.0
+schema: v1
+skills:
+$skillsYaml
+mcpServers:
+  - name: run-flow-skills-mcp
+    command: uv
+    args:
+      - run
+      - --directory
+      - $ProjectRoot/run-flow-skills-mcp
+      - run-flow-skills-mcp
+"@
+    Write-PlatformFile -Path (Join-Path $ProjectRoot '.continue\config.yaml') -Content $configYaml -DryRun:$DryRun
+
+    # 2. 生成 MCP 独立配置文件（.continue/mcpServers/ 目录）
+    $mcpServerYaml = @"
+name: run-flow-skills-mcp
+command: uv
+args:
+  - run
+  - --directory
+  - $ProjectRoot/run-flow-skills-mcp
+  - run-flow-skills-mcp
+"@
+    Write-PlatformFile -Path (Join-Path $ProjectRoot '.continue\mcpServers\run-flow-skills-mcp.yaml') -Content $mcpServerYaml -DryRun:$DryRun
+
+    # 3. 保留 config.json 作为兼容 fallback（Continue 仍读取但已废弃）
+    $configJson = @{
         rules = @(
             @{ name = 'runflow-agents'; path = 'AGENTS.md' }
         )
@@ -216,7 +286,7 @@ function Sync-Continue {
             }
         }
     } | ConvertTo-Json -Depth 10
-    Write-PlatformFile -Path (Join-Path $ProjectRoot '.continue\config.json') -Content $config -DryRun:$DryRun
+    Write-PlatformFile -Path (Join-Path $ProjectRoot '.continue\config.json') -Content $configJson -DryRun:$DryRun
 }
 
 function Sync-OpenCode {
@@ -275,5 +345,5 @@ foreach ($platform in $Platforms) {
 
 Write-Host ""
 Write-Host "=== 同步完成 ===" -ForegroundColor Cyan
-Write-Host "提示: 镜像目录（.claude/、.cursor/、.windsurfrules、.continue/、.opencode/、.workbuddy/、opencode.json、CLAUDE.md、.mcp.json）入库以便开箱即用。" -ForegroundColor Green
+Write-Host "提示: 镜像目录（.claude/、.cursor/、.windsurf/、.continue/（含 config.yaml + mcpServers/ + rules/）、.opencode/、.workbuddy/、opencode.json、CLAUDE.md、.mcp.json）入库以便开箱即用。" -ForegroundColor Green
 Write-Host "开发者修改源（AGENTS.md / .trae/skills/）后，请重新运行本脚本并提交镜像变更。" -ForegroundColor Yellow

@@ -102,7 +102,10 @@ RunFlowSkills/
 ├── CLAUDE.md                # Claude Code 规则镜像
 ├── .mcp.json                # Claude Code MCP 配置
 ├── opencode.json            # OpenCode MCP 配置
-├── .windsurfrules           # Windsurf 规则镜像
+├── .windsurf/                 # Windsurf 镜像
+│   ├── rules/                 # 现代格式规则目录
+│   └── mcp.json               # Windsurf MCP 配置
+├── .windsurfrules             # Windsurf 兼容格式（fallback）
 ├── .trae/                   # Trae IDE 平台目录（默认源）
 │   ├── skills/              # 6 个 Skill 工作流（单一事实源）
 │   └── mcp.json             # Trae MCP 配置
@@ -114,7 +117,10 @@ RunFlowSkills/
 ├── .workbuddy/                # WorkBuddy 镜像
 │   ├── skills/                # 6 个 Skill 定义
 │   └── mcp.json               # WorkBuddy MCP 配置
-├── .continue/config.json    # Continue 配置镜像
+├── .continue/                 # Continue 镜像
+│   ├── config.yaml            # 现代格式配置（YAML）
+│   ├── config.json            # 兼容格式（fallback）
+│   └── mcpServers/            # MCP 独立配置文件
 ├── run-flow-skills-mcp/     # MCP Server + Web（Python）
 │   ├── src/                 # 源代码（tools/services/models/calculators/web）
 │   └── tests/               # 测试套件（348 用例）
@@ -141,8 +147,8 @@ RunFlowSkills/
 | Trae IDE CN | `.trae/` | ✅ | ✅ |
 | Claude Code | `CLAUDE.md` + `.mcp.json` | ✅ | ✅ |
 | Cursor | `.cursor/rules/` | ✅（转 .mdc） | ✅ |
-| Windsurf | `.windsurfrules` | ✅（合并） | ✅ |
-| Continue | `.continue/config.json` | ✅（索引） | ✅ |
+| Windsurf | `.windsurf/rules/` | ✅（现代格式） | ✅ |
+| Continue | `.continue/config.yaml` | ✅（索引） | ✅ |
 | OpenCode | `opencode.json` | ✅ | ✅ |
 | WorkBuddy | `.workbuddy/` | ✅ | ✅ |
 

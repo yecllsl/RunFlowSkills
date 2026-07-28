@@ -100,8 +100,8 @@ function Get-OutputPath {
         'trae'        { return (Join-Path $ProjectRoot '.trae\mcp.json') }
         'claude-code' { return (Join-Path $ProjectRoot '.mcp.json') }
         'cursor'      { return (Join-Path $ProjectRoot '.cursor\mcp.json') }
-        'windsurf'    { return (Join-Path $ProjectRoot 'mcp_config.json') }
-        'continue'    { return (Join-Path $ProjectRoot '.continue\config.json') }
+        'windsurf'    { return (Join-Path $ProjectRoot '.windsurf\mcp.json') }
+        'continue'    { return (Join-Path $ProjectRoot '.continue\mcpServers\run-flow-skills-mcp.yaml') }
         'opencode'    { return (Join-Path $ProjectRoot 'opencode.json') }
         'workbuddy'   { return (Join-Path $ProjectRoot '.workbuddy\mcp.json') }
     }
@@ -111,14 +111,23 @@ function Get-OutputPath {
 $cmd = Get-McpCommand -Runner $PythonRunner -Platform $Platform
 
 # 按平台构造不同的配置结构
+$isYaml = $false
 switch ($Platform) {
     'continue' {
-        # Continue: 嵌套在 config.json 结构中
+        # Continue: 现代格式 .continue/mcpServers/ 目录下的 YAML 文件
+        $config = @"
+name: run-flow-skills-mcp
+command: $($cmd.command)
+args:
+$($cmd.args | ForEach-Object { "  - $_" } | Out-String)
+"@
+        $isYaml = $true
+    }
+    'windsurf' {
+        # Windsurf: 现代格式 .windsurf/mcp.json（标准 mcpServers 结构）
         $config = @{
-            mcp = @{
-                servers = @{
-                    'run-flow-skills-mcp' = $cmd
-                }
+            mcpServers = @{
+                'run-flow-skills-mcp' = $cmd
             }
         }
     }
@@ -136,7 +145,7 @@ switch ($Platform) {
         }
     }
     default {
-        # Trae / Claude Code / Cursor / Windsurf / WorkBuddy: 标准 mcpServers 结构
+        # Trae / Claude Code / Cursor / WorkBuddy: 标准 mcpServers 结构
         $config = @{
             mcpServers = @{
                 'run-flow-skills-mcp' = $cmd
@@ -145,8 +154,12 @@ switch ($Platform) {
     }
 }
 
-# 序列化为 JSON（保留可读性）
-$json = $config | ConvertTo-Json -Depth 10
+# 序列化为 JSON 或直接使用 YAML 字符串
+if ($isYaml) {
+    $output = $config
+} else {
+    $output = $config | ConvertTo-Json -Depth 10
+}
 
 # 确定输出路径并写入
 $outPath = Get-OutputPath -Platform $Platform -Override $OutputPath
@@ -154,7 +167,7 @@ $parent = Split-Path -Parent $outPath
 if (-not (Test-Path $parent)) {
     New-Item -ItemType Directory -Path $parent -Force | Out-Null
 }
-Set-Content -Path $outPath -Value $json -Encoding UTF8 -NoNewline
+Set-Content -Path $outPath -Value $output -Encoding UTF8 -NoNewline
 
 Write-Host "[OK] 已生成: $outPath" -ForegroundColor Green
 Write-Host ""

@@ -14,8 +14,8 @@
 | Trae IDE CN | `.trae/` | ✅ | `.trae/mcp.json` | ✅ 默认 |
 | Claude Code | `CLAUDE.md` | ✅ | `.mcp.json` | 🟡 镜像已入库 |
 | Cursor | `.cursor/rules/` | ✅（.mdc） | `.cursor/mcp.json` | 🟡 镜像已入库 |
-| Windsurf | `.windsurfrules` | ✅（合并） | `mcp_config.json` | 🟡 镜像已入库 |
-| Continue | `.continue/config.json` | ✅（索引） | 同配置 | 🟡 镜像已入库 |
+| Windsurf | `.windsurf/rules/` | ✅（现代格式） | `.windsurf/mcp.json` | 🟡 镜像已入库 |
+| Continue | `.continue/config.yaml` | ✅（索引） | `.continue/mcpServers/` | 🟡 镜像已入库 |
 | OpenCode | `AGENTS.md`（自动） | ✅ | `opencode.json` | 🟡 镜像已入库 |
 | WorkBuddy | `AGENTS.md`（自动） | ✅ | `.workbuddy/mcp.json` | 🟡 镜像已入库 |
 
@@ -110,18 +110,25 @@ Cursor 自动读取 `.cursor/mcp.json` + `.cursor/rules/*.mdc`：
 1. 打开 Windsurf → 文件 → 打开文件夹 → 选择 `RunFlowSkills`
 
 Windsurf 自动读取：
-- `.windsurfrules`：包含 AGENTS.md 全文（Windsurf 单文件规则）
-- `mcp_config.json`：MCP Server 配置（项目根目录，绝对路径）
+- `.windsurf/rules/`：现代格式规则目录（多个 `.md` 文件，含 frontmatter）
+- `.windsurfrules`：兼容格式（Windsurf 仍读取）
+- `.windsurf/mcp.json`：MCP Server 配置
+- `AGENTS.md`：规则（Windsurf 自动读取）
+
+> Windsurf 支持 `.windsurf/rules/` 目录的现代格式（Wave 8+），每个规则文件含 `trigger`/`description`/`globs` frontmatter。
 
 ### Continue
 
 1. 安装 Continue 插件（VSCode 或 JetBrains）
 2. 打开项目文件夹
 
-Continue 自动读取 `.continue/config.json`，其中包含：
-- `rules`：引用 `AGENTS.md`
-- `skills`：6 个 Skill 索引
-- `mcp.servers`：MCP Server 配置
+Continue 自动读取：
+- `.continue/config.yaml`：现代格式配置（YAML，替代已废弃的 `config.json`）
+- `.continue/mcpServers/`：MCP Server 独立配置文件
+- `.continue/config.json`：兼容格式（仍被读取但已废弃）
+- `AGENTS.md`：约束规则（Continue 自动读取）
+
+> Continue 推荐使用 `config.yaml`（现代格式），`config.json` 保留作为兼容 fallback。约束规则通过 AGENTS.md 直接读取。
 
 ### OpenCode
 
